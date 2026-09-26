@@ -364,7 +364,7 @@
           <button class="help-btn" onclick="openChannelModal()">❓ 表を確認</button>
         </div>
         <select id="channel-select"></select>
-        <button id="roll-btn" onclick="executePlay()">Attack!</button>
+        <button id="roll-btn" onclick="executePlay()">Use it !</button>
       </div>
     </div>
 
@@ -392,18 +392,18 @@
     { name: '赤', key: 'red', hex: '#d32f2f' },
     { name: '青', key: 'blue', hex: '#1976d2' },
     { name: '黄', key: 'yellow', hex: '#fbc02d' },
-    { name: '白', key: 'white', hex: '#ffffff' },
+    { name: '紫', key: 'purple', hex: '#732E7E' },
     { name: '緑', key: 'green', hex: '#388e3c' },
     { name: '橙', key: 'orange', hex: '#f57c00' }
   ];
 
   const PASS_TABLE = {
-    'Point':   { red: {val: 0, label: '0'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  white: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 0, label: '0'} },
-    'Inside':  { red: {val: -1, label: '-1'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'},  white: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
-    'Middle':  { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: -1, label: '-1'}, white: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1op', isOffload: true, label: '1 オフロードパス'} },
-    'Short':   { red: {val: 1, label: '1'}, blue: {val: 3, isCNB: true, label: '3 (クリーンブレイク！)'}, yellow: {val: -1, label: '-1'},white: {val: -1, label: '-1'}, green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
-    'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4 (クリーンブレイク！)'}, white: {val: -1, label: '-1'}, green: {val: -2, label: '-2'}, orange: {val: 0, label: '0'} },
-    'Edge':    { red: {val: 0, label: '0'}, blue: {val: '1a', isKickPass: true, label: '1 アドバンテージ (キックパス)'}, yellow: {val: 3, label: '3'},  white: {val: 5, isCNB: true, label: '5 (クリーンブレイク！)'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} }
+    'Point':   { red: {val: 0, label: '0'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 0, label: '0'} },
+    'Inside':  { red: {val: -1, label: '-1'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
+    'Middle':  { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: -1, label: '-1'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1op', isOffload: true, label: '1 オフロードパス'} },
+    'Short':   { red: {val: 1, label: '1'}, blue: {val: 3, isCNB: true, label: '3 (クリーンブレイク！)'}, yellow: {val: -1, label: '-1'},purple: {val: -1, label: '-1'}, green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
+    'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4 (クリーンブレイク！)'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
+    'Edge':    { red: {val: 0, label: '0'}, blue: {val: '1a', isKickPass: true, label: '1 アドバンテージ (キックパス)'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5 (クリーンブレイク！)'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} }
   };
 
   const TOTAL_LINES = 13; 
