@@ -17,31 +17,39 @@
   }
 
   #game-title {
-    font-size: 15px;
+    font-size: 13px;
     color: #ffffff;
     margin: 1px 0;
     font-weight: bold;
     letter-spacing: 0.5px;
-    padding: 2px 4px;
+    padding: 3px 6px;
     background: #1f1f1f;
     border-radius: 3px;
     border: 1px solid #444;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* 左右に配置 */
     align-items: center;
+    position: relative;
+    box-sizing: border-box;
+    text-align: left;
+  }
+
+  /* タイトル文字列を1列で左側に表示 */
+  #game-title span:first-child {
+    white-space: nowrap;
   }
 
   .rule-btn {
-    background: #1976d2;
-    color: #fff;
-    font-size: 8px;
-    padding: 2px 6px;
+    background: #2a2a2a; /* 青から黒基調に変更 */
+    color: #ccc;
+    font-size: 7px;
+    padding: 2px 5px;
     border-radius: 3px;
-    border: none;
+    border: 1px solid #555;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: normal;
   }
-  .rule-btn:hover { background: #115293; }
+  .rule-btn:hover { background: #3a3a3a; color: #fff; }
 
   #game-container {
     display: flex;
@@ -160,7 +168,6 @@
   }
   .team-red { background-color: #d32f2f; border: 1.5px solid #fff; }
 
-  /* キックパス用の放物線アニメーション */
   @keyframes kickPassArc {
     0% { transform: translate(-50%, -50%) scale(1); }
     50% { transform: translate(-50%, -180%) scale(1.4); }
@@ -228,7 +235,7 @@
   }
   select { background: #333; color: #fff; margin-bottom: 4px; border: 1px solid #555; }
   
-  button { 
+  #controls button { 
     background-color: #c62828; 
     color: white; 
     font-weight: bold; 
@@ -236,8 +243,8 @@
     padding: 3px 4px;
     letter-spacing: 0.5px;
   }
-  button:hover { background-color: #b71c1c; }
-  button:disabled { background-color: #555; cursor: not-allowed; }
+  #controls button:hover { background-color: #b71c1c; }
+  #controls button:disabled { background-color: #555; cursor: not-allowed; }
   
   #dice-result-container {
     display: flex;
@@ -273,7 +280,6 @@
 
   #log { font-size: 8px; color: #ffffff; min-height: 16px; background: #111; padding: 2px 3px; border-radius: 3px; text-align: left; font-family: Arial, sans-serif; box-sizing: border-box; }
 
-  /* 常時表示用チャンネルガイド */
   #channel-guide-panel {
     background: #161616;
     border: 1px solid #333;
@@ -311,34 +317,32 @@
     gap: 1px;
   }
 
-  /* モーダルウィンドウ共通スタイル（画面下部表示） */
   #modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(0, 0, 0, 0.85);
     display: none;
     justify-content: center;
-    align-items: flex-end; /* 画面一番下へ配置 */
+    align-items: center;
     z-index: 100;
   }
   #modal-content {
     background: #1a1a1a;
     border: 2px solid #b71c1c;
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
-    width: 100%;
-    max-width: 320px;
-    max-height: 75vh;
-    padding: 8px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 300px;
+    max-height: 85vh;
+    padding: 10px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     text-align: left;
-    animation: slideUp 0.25s ease-out;
+    animation: fadeInScale 0.2s ease-out;
   }
-  @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
+  @keyframes fadeInScale {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
   }
   #modal-header {
     display: flex;
@@ -349,7 +353,7 @@
     margin-bottom: 6px;
   }
   #modal-title {
-    font-size: 10px;
+    font-size: 11px;
     color: #ffcc00;
     font-weight: bold;
   }
@@ -367,7 +371,7 @@
   #modal-body {
     font-size: 8.5px;
     overflow-y: auto;
-    max-height: 250px;
+    max-height: 320px;
     line-height: 1.4;
     color: #ddd;
     padding-right: 2px;
@@ -375,27 +379,28 @@
   .tutorial-section {
     margin-bottom: 8px;
     background: #222;
-    padding: 5px;
+    padding: 6px;
     border-radius: 3px;
     border-left: 2px solid #ffcc00;
   }
   .tutorial-section h4 {
     margin: 0 0 3px 0;
     color: #ffcc00;
-    font-size: 9px;
+    font-size: 9.5px;
   }
   .tutorial-section p {
     margin: 0;
-    font-size: 8px;
+    font-size: 8.5px;
   }
 </style>
 </head>
 <body>
 
 <div id="game-container">
+  <!-- ゲームタイトル（左側1列）と小さく調整されたチュートリアルボタン（右上） -->
   <div id="game-title" style="width: 280px; box-sizing: border-box;">
     <span>Dice Rugby Tactics</span>
-    <button class="rule-btn" onclick="openTutorialModal()"> チュートリアル</button>
+    <button class="rule-btn" onclick="openTutorialModal()">チュートリアル</button>
   </div>
 
   <div id="board-wrapper">
@@ -429,7 +434,6 @@
       </div>
     </div>
 
-    <!-- 常時表示のアタックチャンネル表 -->
     <div id="channel-guide-panel">
       <div id="channel-guide-title">カラーダイス結果表</div>
       <div id="channel-guide-list"></div>
@@ -444,11 +448,10 @@
   </div>
 </div>
 
-<!-- 遊び方ポップアップモーダル（画面一番下に配置） -->
 <div id="modal-overlay" onclick="closeTutorialModal(event)">
   <div id="modal-content" onclick="event.stopPropagation()">
     <div id="modal-header">
-      <span id="modal-title"> チュートリアル</span>
+      <span id="modal-title">チュートリアル</span>
       <button class="close-btn" onclick="closeTutorialModal()">✕ 閉じる</button>
     </div>
     <div id="modal-body">
