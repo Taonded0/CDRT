@@ -448,13 +448,13 @@
 <div id="modal-overlay" onclick="closeTutorialModal(event)">
   <div id="modal-content" onclick="event.stopPropagation()">
     <div id="modal-header">
-      <span id="modal-title">🏉 遊び方 ＆ レーンガイド</span>
+      <span id="modal-title"> チュートリアル</span>
       <button class="close-btn" onclick="closeTutorialModal()">✕ 閉じる</button>
     </div>
     <div id="modal-body">
       <div class="tutorial-section">
         <h4>【ステップ1：ゲームの目的】</h4>
-        <p>・10フェイズ以内に画面最上部の「インゴール」までボールを進めてトライを奪うこと！<br>
+        <p>・10フェイズ以内に画面最上部の「ゴールライン」までボールを進めてトライを奪うこと！<br>
         ・10フェイズ経過、ターンオーバー（TO）、または<strong>22mラインの外へ押し出される</strong>とゲームオーバーです。</p>
       </div>
 
@@ -482,14 +482,14 @@
         <p>「<strong>Use it !</strong>」ボタンでダイスを振り、進むマスが決まります。<br>
         ・<strong>数字</strong>：その数だけ前進！<br>
         ・<strong>マイナス</strong>：ディフェンスに押し戻される…<br>
-        ・<strong>✨（クリーンブレイク）</strong>：次から進むマスが<strong>2倍</strong>にブースト！<br>
+        ・<strong>CB（クリーンブレイク）</strong>：次から進むマスが<strong>2倍</strong>にブースト！<br>
         ・<strong>TO</strong>：ボールを奪われ即ゲームオーバー！</p>
       </div>
 
       <div class="tutorial-section">
-        <h4>【ステップ5：特殊な出目「1op」と「1a」】</h4>
-        <p>・<strong>1op（オフロードパス）</strong>：1マス進んだ後に追加ダイス。成功すれば追加で最大＋6マス前進！<br>
-        ・<strong>1a（アドバンテージ / キックパス）</strong>：最外側Edgeで出現。約33%の確率で逆サイドへ<strong>一発トライのクロスキック</strong>が発動！（失敗時はフェイズ1からリスタート）</p>
+        <h4>【ステップ5：特殊な出目「1OP」と「1A」】</h4>
+        <p>・<strong>1OP（オフロードパス）</strong>：1マス進んだ後に追加ダイス。成功すれば追加で最大＋6マス前進！<br>
+        ・<strong>1A（アドバンテージ / キックパス）</strong>：最外側Edgeで出現。約33%の確率で逆サイドへ<strong>一発トライのクロスキック</strong>が発動！（失敗時はフェイズ1からリスタート）</p>
       </div>
     </div>
   </div>
@@ -508,10 +508,10 @@
   const PASS_TABLE = {
     'Point':   { red: {val: 0, label: '0'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 0, label: '0'} },
     'Inside':  { red: {val: -1, label: '-1'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
-    'Middle':  { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: -1, label: '-1'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1op', isOffload: true, label: '1op'} },
-    'Short':   { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3✨'}, yellow: {val: -1, label: '-1'},purple: {val: -1, label: '-1'}, green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
-    'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4✨'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
-    'Edge':    { red: {val: 0, label: '0'}, blue: {val: '1a', isKickPass: true, label: '1a'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5✨'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} }
+    'Middle':  { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: -1, label: '-1'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
+    'Short':   { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3CB'}, yellow: {val: -1, label: '-1'},purple: {val: -1, label: '-1'}, green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
+    'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
+    'Edge':    { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5✨'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} }
   };
 
   const TOTAL_LINES = 13; 
@@ -740,7 +740,7 @@
     colorBox.style.backgroundColor = rolledMeta.hex;
     
     const textBox = document.getElementById('dice-text-box');
-    textBox.innerText = cellData.isKickPass ? '1a (アドバンテージ)' : (cellData.isOffload ? '1op (オフロード)' : cellData.label);
+    textBox.innerText = cellData.isKickPass ? '1A (アドバンテージ)' : (cellData.isOffload ? '1op (オフロード)' : cellData.label);
     textBox.style.backgroundColor = '#222';
     textBox.style.color = '#fff';
 
@@ -839,7 +839,7 @@
 
               currentPhase++;
               if (currentPhase > maxPhases) {
-                failGame("⏱️ 10フェイズ制限オーバー！");
+                failGame("10フェイズ制限オーバー！");
                 return;
               }
 
@@ -862,7 +862,7 @@
         document.getElementById('log').innerText = `【Edge】➔ 1a！ アドバンテージ！ クロスキックで一発トライを狙う！...`;
 
         setTimeout(() => {
-          document.getElementById('log').innerText = `🏉 逆エッジで待つ味方にクロスキック！`;
+          document.getElementById('log').innerText = ` 逆エッジの味方にクロスキック！`;
 
           const token = document.getElementById('ball-token');
           token.style.transition = 'left 3.0s cubic-bezier(0.15, 0.85, 0.35, 1), top 3.0s cubic-bezier(0.15, 0.85, 0.35, 1)';
