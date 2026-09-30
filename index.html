@@ -399,7 +399,7 @@
     <div class="control-row">
       <div class="control-col-left">
         <div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU (P1)</span></div>
-        <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/10</span></div>
+        <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/5</span></div>
         <div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div>
       </div>
 
@@ -420,7 +420,7 @@
       <div id="dice-text-box">-</div>
     </div>
 
-    <div id="log">10フェイズ以内に相手インゴールへ攻め込め！</div>
+    <div id="log">5フェイズ以内に相手インゴールへ攻め込め！</div>
   </div>
 </div>
 
@@ -747,7 +747,7 @@
       return;
     }
 
-    document.getElementById('phase-num').innerText = currentPhase + '/10';
+    document.getElementById('phase-num').innerText = currentPhase + '/5';
 
     if (currentAttacker === 'P1') {
       lockControls(false);
