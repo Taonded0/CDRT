@@ -435,7 +435,7 @@
         <h4>【対戦ルール】</h4>
         <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
         ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
-        ・10フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代（TURNOVER）！</p>
+        ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代（TURNOVER）！</p>
       </div>
 
       <div class="tutorial-section">
@@ -476,7 +476,7 @@
   let ballY = 5; // 中央のキックオフ位置
   let currentAttacker = 'P1'; // 'P1' (YOU) または 'COM' (CPU)
   let currentPhase = 1;
-  let maxPhases = 10;
+  let maxPhases = 5;
   let p1Tries = 0;
   let comTries = 0;
   let hasCleanBreak = false;
@@ -621,7 +621,7 @@
       document.getElementById('current-turn').style.color = '#00f2fe';
     }
 
-    document.getElementById('phase-num').innerText = currentPhase + '/10';
+    document.getElementById('phase-num').innerText = currentPhase + '/5';
     document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
@@ -786,7 +786,7 @@
         setTimeout(() => { executePlay(); }, 1200);
       } else {
         lockControls(false);
-        document.getElementById('log').innerText = `あなたの攻撃ターン！10フェイズ以内にトライを獲れ！`;
+        document.getElementById('log').innerText = `あなたの攻撃ターン！5フェイズ以内にトライを獲れ！`;
       }
     }, 1800);
   }
@@ -796,18 +796,18 @@
     ballY = 5; // フィールド中央から再開
     currentPhase = 1;
     hasCleanBreak = false;
-    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1'; // トライされた側がキックオフ（交互）
+    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1'; // トライされた側のアタック（交互）
     
     updateDisplayImmediate();
     updateAvailableChannels();
 
     if (currentAttacker === 'COM') {
       lockControls(true);
-      document.getElementById('log').innerText = `COMのキックオフで再開！`;
+      document.getElementById('log').innerText = `COMのボールで再開！`;
       setTimeout(() => { executePlay(); }, 1200);
     } else {
       lockControls(false);
-      document.getElementById('log').innerText = `あなたのキックオフで再開！`;
+      document.getElementById('log').innerText = `あなたのボールで再開！`;
     }
   }
 
