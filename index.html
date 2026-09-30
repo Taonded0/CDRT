@@ -464,17 +464,18 @@
     'Outside':     { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
     'Edge':        { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5CB'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} },
 
+    // 中央（CL: X=2）位置専用のインサイド／アウトサイド配置テーブル
     'Inside_Left': { red: {val: 1, label: '1'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: 1, label: '1'}, green: {val: 2, label: '2'}, orange: {val: -1, label: '-1'} },
     'Inside_Right':{ red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 2, label: '2'}, green: {val: 0, label: '0'}, orange: {val: '1OP', isOffload: true, label: '1OP'} },
     'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 5, isCNB: true, label: '5CB'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
-    'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, isCNB: true, label: '3CB'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
+    'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, isCNB: true, label: '4CB'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
   };
 
-  const TOTAL_LINES = 11; // フィールド内の横線数
+  const TOTAL_LINES = 11;
   let linePositionsY = [];
   let ballX = 2; 
-  let ballY = 5; // 中央のキックオフ位置
-  let currentAttacker = 'P1'; // 'P1' (YOU) または 'COM' (CPU)
+  let ballY = 5; 
+  let currentAttacker = 'P1'; 
   let currentPhase = 1;
   let maxPhases = 5;
   let p1Tries = 0;
@@ -549,6 +550,7 @@
         { label: 'Outside (左EL)', x: 0, key: 'Outside' }
       ];
     } else {
+      // 中央（X=2）配置時：左右で独立したインサイド／アウトサイドテーブルを自動適用
       currentAvailableOptions = [
         { label: 'Point (CL)', x: 2, key: 'Point' },
         { label: 'Inside (左HL)', x: 1, key: 'Inside_Left' },
@@ -639,10 +641,8 @@
     }, 200);
   }
 
-  // CPUのアタックチャンネル自動判定（AI思考）
   function selectCpuOption() {
-    // 相手ゴールに近い（勝負どころ）場合はEdgeやOutsideなどのアグレッシブな選択率を上昇
-    const isCloseToGoal = (ballY >= 8); // COMは下(Y=10)を目指す
+    const isCloseToGoal = (ballY >= 8);
     
     if (isCloseToGoal && Math.random() < 0.6) {
       const aggressiveOpts = currentAvailableOptions.filter(o => o.key.includes('Edge') || o.key.includes('Outside') || o.key.includes('Short'));
@@ -650,7 +650,6 @@
         return aggressiveOpts[Math.floor(Math.random() * aggressiveOpts.length)];
       }
     }
-    // 通常時はバランス良くランダム選択
     return currentAvailableOptions[Math.floor(Math.random() * currentAvailableOptions.length)];
   }
 
@@ -671,7 +670,6 @@
     textBox.innerText = cellData.isKickPass ? '1A (ADVANTAGE)' : (cellData.isOffload ? '1OP (OFFLOAD)' : cellData.label);
 
     const isTO = (cellData.isTO || cellData.label === 'TO');
-    const isKickPass = cellData.isKickPass;
     const isOffload = cellData.isOffload;
 
     let tempSteps = 0;
@@ -692,7 +690,6 @@
     if (hasCleanBreak && tempSteps > 0) tempSteps *= 2;
     if (isNextCB) hasCleanBreak = true;
 
-    // P1は上（Y減少）、COMは下（Y増加）に進む
     let targetY = (currentAttacker === 'P1') ? ballY - tempSteps : ballY + tempSteps;
     let targetX = selectedOption.x;
 
@@ -752,7 +749,6 @@
     if (currentAttacker === 'P1') {
       lockControls(false);
     } else {
-      // CPUの連続ターン思考ディレイ
       document.getElementById('log').innerText = `COMの攻撃ターン...思考中`;
       setTimeout(() => { executePlay(); }, 1200);
     }
@@ -793,10 +789,10 @@
 
   function resetKickOff() {
     ballX = 2;
-    ballY = 5; // フィールド中央から再開
+    ballY = 5;
     currentPhase = 1;
     hasCleanBreak = false;
-    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1'; // トライされた側のアタック（交互）
+    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     
     updateDisplayImmediate();
     updateAvailableChannels();
