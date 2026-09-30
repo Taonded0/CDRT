@@ -3,67 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>DICE RUGBY TACTICS</title>
+<title>DICE RUGBY TACTICS - VS CPU</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Noto+Sans+JP:wght@500;700;900&display=swap');
+
   body {
-    font-family: 'Arial Black', Arial, sans-serif;
-    background-color: #111;
-    color: #fff;
+    font-family: 'Orbitron', 'Noto Sans JP', -apple-system, sans-serif;
+    background: #090a0f;
+    background-image: 
+      radial-gradient(circle at 50% 10%, rgba(0, 242, 254, 0.15) 0%, transparent 60%),
+      radial-gradient(circle at 80% 80%, rgba(255, 42, 109, 0.08) 0%, transparent 50%);
+    color: #e2e8f0;
     text-align: center;
     margin: 0;
-    padding: 2px;
+    padding: 6px 2px;
     box-sizing: border-box;
     overflow: hidden;
+    user-select: none;
   }
 
-  /* ヘッダー：左右均等のフレックスにしてタイトルを完全に中央へ */
+  /* ヘッダー */
   #game-header {
-    width: 280px;
-    margin: 0 auto 2px auto;
-    background: #1f1f1f;
-    border-radius: 3px;
-    border: 1px solid #444;
-    padding: 2px 4px;
+    width: 285px;
+    margin: 0 auto 4px auto;
+    background: rgba(18, 24, 38, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 242, 254, 0.1);
+    padding: 3px 6px;
     box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  /* 左右のバランスを取るための空スペース */
-  .header-spacer {
-    width: 16px;
-    flex-shrink: 0;
-  }
+  .header-spacer { width: 18px; flex-shrink: 0; }
 
   #game-title {
-    font-size: 15px;
+    font-size: 11px;
     color: #ffffff;
-    font-weight: bold;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
     margin: 0;
     white-space: nowrap;
     text-align: center;
     flex-grow: 1;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
   }
 
   .rule-btn {
-    background: #2a2a2a;
-    color: #aaa;
-    font-size: 6px;
-    padding: 1px 2px;
-    border-radius: 2px;
-    border: 1px solid #555;
+    background: rgba(255, 255, 255, 0.05);
+    color: #00f2fe;
+    font-size: 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 242, 254, 0.4);
     cursor: pointer;
-    font-weight: normal;
+    font-weight: bold;
     flex-shrink: 0;
-    width: 16px;
-    height: 14px;
+    width: 20px;
+    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .rule-btn:hover { background: #3a3a3a; color: #fff; }
 
   #game-container {
     display: flex;
@@ -71,69 +75,58 @@
     align-items: center;
     max-width: 320px;
     margin: 0 auto;
-    gap: 2px;
+    gap: 4px;
   }
 
   #board-wrapper {
     position: relative;
-    width: 280px;
-    height: 190px;
-    background-color: #1b4d3e;
-    border: 2px solid #ffffff;
+    width: 285px;
+    height: 220px;
+    background-color: #0c1421;
+    background-image: 
+      linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px);
+    background-size: 10px 10px;
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 242, 254, 0.15);
     box-sizing: border-box;
     margin: 0 auto;
-    border-radius: 4px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    overflow: hidden;
   }
 
-  .ingoal-header {
+  /* 上下インゴール */
+  .ingoal-zone {
     width: 100%;
-    height: 26px;
-    background-color: #8b0000;
+    height: 20px;
     position: relative;
     box-sizing: border-box;
-    border-bottom: 2px solid #ffffff;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 1px;
   }
-
-  .goal-post {
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    bottom: -2px; 
+  .ingoal-top {
+    background: linear-gradient(180deg, rgba(0, 242, 254, 0.3) 0%, rgba(0, 242, 254, 0.05) 100%);
+    border-bottom: 1.5px solid rgba(0, 242, 254, 0.8);
+    color: #00f2fe;
   }
-
-  .goal-post::before, .goal-post::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 2px;
-    height: 100%;
-    background-color: #ffffff;
-  }
-  .goal-post::before { left: 0; }
-  .goal-post::after { right: 0; }
-
-  .goal-post .crossbar {
-    position: absolute;
-    top: 45%;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #ffffff;
-    transform: translateY(-50%);
+  .ingoal-bottom {
+    background: linear-gradient(0deg, rgba(255, 42, 109, 0.3) 0%, rgba(255, 42, 109, 0.05) 100%);
+    border-top: 1.5px solid rgba(255, 42, 109, 0.8);
+    color: #ff2a6d;
   }
 
   #field-container {
     position: relative;
     width: 100%;
     flex-grow: 1;
-    background-color: #1b4d3e;
     overflow: visible;
   }
 
@@ -141,7 +134,7 @@
     position: absolute;
     top: 0; bottom: 0;
     width: 1px;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.15);
     z-index: 2;
   }
 
@@ -149,69 +142,65 @@
     position: absolute;
     left: 0; right: 0;
     height: 1px;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.15);
     z-index: 2;
   }
-  .h-line.dashed { 
-    border-top: 1.5px dashed #ffffff; 
-    background: none; 
-    height: 0; 
-    z-index: 3;
-  }
-
-  .line-label {
-    position: absolute;
-    left: 4px;
-    font-size: 8px;
-    color: #ffffff;
-    font-weight: bold;
-    transform: translateY(-50%);
-    z-index: 4;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+  .h-line.center-line {
+    border-top: 1px dashed rgba(255, 255, 255, 0.5);
+    background: none;
   }
 
   #ball-token {
     position: absolute;
-    width: 15px;
-    height: 10px;
-    border-radius: 50%;
+    width: 10px;
+    height: 18px;
+    border-radius: 50% / 50%;
     transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 3px rgba(0,0,0,0.8);
+    transform: translate(-50%, -50%) rotate(-15deg);
+    box-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe;
     z-index: 10;
+    background: radial-gradient(ellipse at 35% 35%, #ffffff 0%, #00f2fe 70%, #006699 100%);
+    border: 1px solid #ffffff;
   }
-  .team-red { background-color: #d32f2f; border: 1.5px solid #fff; }
+
+  /* COMのボールエフェクト */
+  #ball-token.com-ball {
+    box-shadow: 0 0 10px #ff2a6d, 0 0 20px #ff2a6d;
+    background: radial-gradient(ellipse at 35% 35%, #ffffff 0%, #ff2a6d 70%, #990033 100%);
+  }
 
   @keyframes kickPassArc {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -180%) scale(1.4); }
-    100% { transform: translate(-50%, -50%) scale(1); }
+    0% { transform: translate(-50%, -50%) rotate(-15deg) scale(1); }
+    50% { transform: translate(-50%, -180%) rotate(180deg) scale(1.6); box-shadow: 0 0 25px #00f2fe; }
+    100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
   }
-  .kicking { animation: kickPassArc 3.0s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+  .kicking { animation: kickPassArc 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
   #controls {
-    width: 280px;
-    background: #1f1f1f;
-    padding: 3px 6px;
-    border-radius: 4px;
+    width: 285px;
+    background: rgba(18, 24, 38, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 5px;
+    border-radius: 8px;
     box-sizing: border-box;
-    border: 1px solid #444;
-    font-family: Arial, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   }
 
   .control-row {
     display: flex;
-    gap: 4px;
-    margin-bottom: 2px;
+    gap: 5px;
+    margin-bottom: 3px;
     align-items: stretch;
   }
 
   .control-col-left {
     width: 105px;
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 3px;
-    padding: 2px 4px;
+    background: rgba(10, 14, 23, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 3px 5px;
     font-size: 8px;
     display: flex;
     flex-direction: column;
@@ -226,231 +215,203 @@
     display: flex;
     flex-direction: column;
     text-align: left;
-    background: #161616;
-    border: 1px solid #333;
-    border-radius: 3px;
-    padding: 3px 5px;
+    background: rgba(10, 14, 23, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 4px 6px;
     box-sizing: border-box;
   }
 
   .status-item {
     display: flex;
     justify-content: space-between;
+    color: #94a3b8;
   }
   
-  .channel-header-row {
-    margin-bottom: 1px;
-  }
-  
-  label { font-size: 8px; color: #ffcc00; font-weight: bold; }
+  label { font-size: 8px; color: #00f2fe; font-weight: 700; letter-spacing: 0.5px; }
 
-  select, button {
-    font-size: 9.5px; padding: 2px 4px; border-radius: 3px; border: none; width: 100%; box-sizing: border-box;
+  select {
+    font-family: inherit;
+    font-size: 9px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    width: 100%;
+    box-sizing: border-box;
+    background: #0d131d;
+    color: #ffffff;
+    margin-bottom: 4px;
+    outline: none;
   }
-  select { background: #333; color: #fff; margin-bottom: 4px; border: 1px solid #555; }
-  
-  #controls button { 
-    background-color: #c62828; 
-    color: white; 
-    font-weight: bold; 
+
+  #controls button#roll-btn { 
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #090a0f; 
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 800; 
     cursor: pointer; 
-    padding: 3px 4px;
-    letter-spacing: 0.5px;
+    padding: 4px;
+    letter-spacing: 1px;
+    border-radius: 4px;
+    border: none;
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+    transition: all 0.2s;
   }
-  #controls button:hover { background-color: #b71c1c; }
-  #controls button:disabled { background-color: #555; cursor: not-allowed; }
+  #controls button#roll-btn:disabled { 
+    background: #1e293b; 
+    color: #475569;
+    box-shadow: none;
+    cursor: not-allowed; 
+  }
   
   #dice-result-container {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     width: 100%;
-    margin: 2px 0;
+    margin: 3px 0;
     box-sizing: border-box;
   }
   
   #dice-color-box {
     width: 20px;
-    height: 16px;
+    height: 18px;
     border-radius: 3px;
-    border: 1px solid #fff;
-    background-color: #333;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: #1e293b;
     flex-shrink: 0;
   }
 
   #dice-text-box {
     flex-grow: 1;
-    height: 16px;
+    height: 18px;
     border-radius: 3px;
-    border: 1px solid #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 8px;
-    background-color: #fff;
-    color: #000;
+    font-weight: 700;
+    font-size: 8.5px;
+    background-color: rgba(10, 14, 23, 0.9);
+    color: #ffffff;
+    letter-spacing: 0.5px;
   }
 
-  #log { font-size: 8px; color: #ffffff; min-height: 16px; background: #111; padding: 2px 3px; border-radius: 3px; text-align: left; font-family: Arial, sans-serif; box-sizing: border-box; }
+  #log { 
+    font-size: 8px; 
+    color: #cbd5e1; 
+    min-height: 20px; 
+    background: rgba(10, 14, 23, 0.9); 
+    padding: 3px 6px; 
+    border-radius: 4px; 
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: left; 
+    box-sizing: border-box; 
+    display: flex;
+    align-items: center;
+  }
 
   #channel-guide-panel {
-    background: #161616;
-    border: 1px solid #333;
-    border-radius: 3px;
+    background: rgba(10, 14, 23, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
     padding: 3px 5px;
     margin-top: 2px;
     box-sizing: border-box;
     text-align: left;
   }
   #channel-guide-title {
-    font-size: 7.5px;
-    color: #ffcc00;
-    font-weight: bold;
+    font-size: 7px;
+    color: #00f2fe;
+    font-weight: 700;
     margin-bottom: 2px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 1px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
   .channel-guide-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5px;
-    font-size: 7.5px;
+    margin-bottom: 1px;
+    font-size: 7px;
   }
-  .channel-guide-name {
-    color: #ccc;
-    font-weight: bold;
-    width: 82px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .channel-guide-colors {
-    display: flex;
-    gap: 1px;
-  }
+  .channel-guide-name { color: #94a3b8; width: 80px; overflow: hidden; white-space: nowrap; }
+  .channel-guide-colors { display: flex; gap: 1px; }
 
+  /* モーダル */
   #modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(5, 7, 12, 0.85);
+    backdrop-filter: blur(8px);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 100;
   }
   #modal-content {
-    background: #1a1a1a;
-    border: 2px solid #b71c1c;
-    border-radius: 8px;
+    background: #0d131d;
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    border-radius: 10px;
     width: 90%;
     max-width: 300px;
-    max-height: 85vh;
     padding: 10px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     text-align: left;
-    animation: fadeInScale 0.2s ease-out;
-  }
-  @keyframes fadeInScale {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
   }
   #modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #444;
-    padding-bottom: 4px;
-    margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 4px; margin-bottom: 6px;
   }
-  #modal-title {
-    font-size: 11px;
-    color: #ffcc00;
-    font-weight: bold;
-  }
-  .close-btn {
-    background: #b71c1c;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    font-size: 9px;
-    padding: 2px 6px;
-    cursor: pointer;
-    width: auto;
-    margin: 0;
-  }
-  #modal-body {
-    font-size: 8.5px;
-    overflow-y: auto;
-    max-height: 320px;
-    line-height: 1.4;
-    color: #ddd;
-    padding-right: 2px;
-  }
-  .tutorial-section {
-    margin-bottom: 8px;
-    background: #222;
-    padding: 6px;
-    border-radius: 3px;
-    border-left: 2px solid #ffcc00;
-  }
-  .tutorial-section h4 {
-    margin: 0 0 3px 0;
-    color: #ffcc00;
-    font-size: 9.5px;
-  }
-  .tutorial-section p {
-    margin: 0;
-    font-size: 8.5px;
-  }
+  #modal-title { font-size: 11px; color: #00f2fe; font-weight: 700; }
+  .close-btn { background: rgba(255, 255, 255, 0.05); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 4px; font-size: 8px; padding: 2px 6px; cursor: pointer; }
+  #modal-body { font-size: 8.5px; line-height: 1.4; color: #cbd5e1; }
+  .tutorial-section { margin-bottom: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px; border-radius: 4px; border-left: 2px solid #00f2fe; }
+  .tutorial-section h4 { margin: 0 0 2px 0; color: #00f2fe; font-size: 8.5px; }
+  .tutorial-section p { margin: 0; }
 </style>
 </head>
 <body>
 
 <div id="game-container">
-  <!-- タイトルが完全に中央にくるよう最適化したヘッダー -->
   <div id="game-header">
     <div class="header-spacer"></div>
-    <div id="game-title">DICE RUGBY TACTICS</div>
-    <button class="rule-btn" onclick="openTutorialModal()">❓️</button>
+    <div id="game-title">VS CPU: RUGBY TACTICS</div>
+    <button class="rule-btn" onclick="openTutorialModal()">?</button>
   </div>
 
   <div id="board-wrapper">
-    <div class="ingoal-header">
-      <div class="goal-post"><div class="crossbar"></div></div>
-    </div>
+    <div class="ingoal-zone ingoal-top">YOU TRY ZONE (P1)</div>
     <div id="field-container">
       <div class="v-line" style="left: 10%;"></div>
       <div class="v-line" style="left: 30%;"></div>
       <div class="v-line" style="left: 50%;"></div>
       <div class="v-line" style="left: 70%;"></div>
       <div class="v-line" style="left: 90%;"></div>
-      <div id="ball-token" class="team-red"></div>
+      <div id="ball-token"></div>
     </div>
+    <div class="ingoal-zone ingoal-bottom">COM TRY ZONE (CPU)</div>
   </div>
 
   <div id="controls">
     <div class="control-row">
       <div class="control-col-left">
-        <div class="status-item"><span>プレイ:</span> <span id="try-count" style="font-weight:bold;">1</span></div>
-        <div class="status-item"><span>フェイズ:</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/10</span></div>
-        <div class="status-item"><span>トライ:</span> <span id="score-tries" style="color:#ffffff; font-weight:bold;">0</span></div>
+        <div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU (P1)</span></div>
+        <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/10</span></div>
+        <div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div>
       </div>
 
       <div class="control-col-right">
-        <div class="channel-header-row">
-          <label>アタックチャンネル選択</label>
-        </div>
+        <label id="channel-label">ATTACK CHANNEL</label>
         <select id="channel-select"></select>
-        <button id="roll-btn" onclick="executePlay()">Use it !</button>
+        <button id="roll-btn" onclick="executePlay()">EXECUTE PLAY</button>
       </div>
     </div>
 
     <div id="channel-guide-panel">
-      <div id="channel-guide-title">カラーダイス結果表</div>
+      <div id="channel-guide-title">DICE MATRIX</div>
       <div id="channel-guide-list"></div>
     </div>
 
@@ -459,55 +420,27 @@
       <div id="dice-text-box">-</div>
     </div>
 
-    <div id="log">カラーダイスの出目を予測して、10フェイズ以内にトライを獲りきれ！</div>
+    <div id="log">10フェイズ以内に相手インゴールへ攻め込め！</div>
   </div>
 </div>
 
 <div id="modal-overlay" onclick="closeTutorialModal(event)">
   <div id="modal-content" onclick="event.stopPropagation()">
     <div id="modal-header">
-      <span id="modal-title">チュートリアル</span>
-      <button class="close-btn" onclick="closeTutorialModal()">✕ 閉じる</button>
+      <span id="modal-title">VS CPU RULES</span>
+      <button class="close-btn" onclick="closeTutorialModal()">✕ CLOSE</button>
     </div>
     <div id="modal-body">
       <div class="tutorial-section">
-        <h4>【ステップ1：ゲームの目的】</h4>
-        <p>・10フェイズ以内に画面最上部の「ゴールライン」までボールを進めてトライを奪うこと！<br>
-        ・10フェイズ経過、ターンオーバー（TO）、または<strong>22mラインの外へ押し出される</strong>とゲームオーバーです。</p>
+        <h4>【対戦ルール】</h4>
+        <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
+        ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
+        ・10フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代（TURNOVER）！</p>
       </div>
 
       <div class="tutorial-section">
-        <h4>【ステップ2：ピッチの3つのレーン構造】</h4>
-        <p>ピッチは縦のエリアによって3つのレーンに分かれています。どこを攻めるかでリスクとリターンが変わります。<br>
-        ・<strong>EL（エッジレーン / 外側）</strong>：大ゲインやキックパスが狙える反面、ターンオーバーのリスクもある最大勝負どころ。<br>
-        ・<strong>HL（ハーフレーン / 中間）</strong>：パスやランで着実にゲインを重ねる戦術の要。<br>
-        ・<strong>CL（セントラルレーン / 中央）</strong>：強固なエリアだが、ここを起点に揺さぶることで攻撃の選択肢が広がる。</p>
-      </div>
-
-      <div class="tutorial-section">
-        <h4>【ステップ3：アタックチャンネルを選ぼう】</h4>
-        <p>ボールの位置で変わる5つの選択肢からルートを選びます。<br>
-        ・<strong>Point</strong>：堅実に中央やサイドを突く基本の攻め。<br>
-        ・<strong>Inside</strong>：内側を突くパス。押し戻されるリスク(-1)もあるが手堅い。<br>
-        ・<strong>Middle</strong>：中央(CL)をダイナミックに攻めるルート。オフロードパスのチャンス！<br>
-        ・<strong>Outside</strong>：外側のスペースを狙うアタック。高確率で大きなゲインやクリーンブレイクを狙える。<br>
-        ・<strong>Short</strong>：ディフェンスの隙間を鋭く突き刺すアグレッシブなルート。<br>
-        ・<strong>Edge</strong>：最外側(EL)を限界まで攻めるルート。キックパスも狙える。</p>
-      </div>
-
-      <div class="tutorial-section">
-        <h4>【ステップ4：ダイスを振って進めよう】</h4>
-        <p>「<strong>Use it !</strong>」ボタンでダイスを振り、進むマスが決まります。<br>
-        ・<strong>数字</strong>：その数だけ前進！<br>
-        ・<strong>マイナス</strong>：ディフェンスに押し戻される…<br>
-        ・<strong>CB（クリーンブレイク）</strong>：次から進むマスが<strong>2倍</strong>にブースト！<br>
-        ・<strong>TO</strong>：ボールを奪われ即ゲームオーバー！</p>
-      </div>
-
-      <div class="tutorial-section">
-        <h4>【ステップ5：特殊な出目「1OP」と「1A」】</h4>
-        <p>・<strong>1OP（オフロードパス）</strong>：1マス進んだ後に追加ダイス。成功すれば追加で最大＋6マス前進！<br>
-        ・<strong>1A（アドバンテージ / キックパス）</strong>：最外側Edgeで出現。約33%の確率で逆サイドへ<strong>一発トライのクロスキック</strong>が発動！（失敗時はフェイズ1からリスタート）</p>
+        <h4>【勝利条件】</h4>
+        <p>相手のTRY ZONEにボールを運び、先にトライを勝ち取ろう！</p>
       </div>
     </div>
   </div>
@@ -515,31 +448,37 @@
 
 <script>
   const COLORS_META = [
-    { name: '赤', key: 'red', hex: '#d32f2f' },
-    { name: '青', key: 'blue', hex: '#1976d2' },
-    { name: '黄', key: 'yellow', hex: '#fbc02d' },
-    { name: '紫', key: 'purple', hex: '#732E7E' },
-    { name: '緑', key: 'green', hex: '#388e3c' },
-    { name: '橙', key: 'orange', hex: '#f57c00' }
+    { name: '赤', key: 'red', hex: '#ff2a6d' },
+    { name: '青', key: 'blue', hex: '#00f2fe' },
+    { name: '黄', key: 'yellow', hex: '#ffeaa7' },
+    { name: '紫', key: 'purple', hex: '#a29bfe' },
+    { name: '緑', key: 'green', hex: '#00b894' },
+    { name: '橙', key: 'orange', hex: '#ff7675' }
   ];
 
   const PASS_TABLE = {
-    'Point':   { red: {val: 0, label: '0'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 0, label: '0'} },
-    'Inside':  { red: {val: -1, label: '-1'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
-    'Middle':  { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: -1, label: '-1'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
-    'Short':   { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3CB'}, yellow: {val: -1, label: '-1'},purple: {val: -1, label: '-1'}, green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
-    'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
-    'Edge':    { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5CB'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} }
+    'Point':       { red: {val: 1, label: '1'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
+    'Inside':      { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
+    'Middle':      { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
+    'Short':       { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3CB'}, yellow: {val: -1, label: '-1'},purple: {val: 0, label: '0'}, green: {val: 0, label: '0'},  orange: {val: 1, label: '1'} },
+    'Outside':     { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
+    'Edge':        { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5CB'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} },
+
+    'Inside_Left': { red: {val: 1, label: '1'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: 1, label: '1'}, green: {val: 2, label: '2'}, orange: {val: -1, label: '-1'} },
+    'Inside_Right':{ red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 2, label: '2'}, green: {val: 0, label: '0'}, orange: {val: '1OP', isOffload: true, label: '1OP'} },
+    'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 5, isCNB: true, label: '5CB'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
+    'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, isCNB: true, label: '3CB'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
   };
 
-  const TOTAL_LINES = 13; 
+  const TOTAL_LINES = 11; // フィールド内の横線数
   let linePositionsY = [];
   let ballX = 2; 
-  let ballY = 10; 
+  let ballY = 5; // 中央のキックオフ位置
+  let currentAttacker = 'P1'; // 'P1' (YOU) または 'COM' (CPU)
   let currentPhase = 1;
   let maxPhases = 10;
-  let totalTries = 0;
-  let tryAttemptCount = 1;
+  let p1Tries = 0;
+  let comTries = 0;
   let hasCleanBreak = false;
 
   let currentAvailableOptions = [];
@@ -559,35 +498,15 @@
 
     const token = document.createElement('div');
     token.id = 'ball-token';
-    token.className = 'team-red';
     container.appendChild(token);
 
     for (let i = 0; i < TOTAL_LINES; i++) {
       linePositionsY[i] = (i / (TOTAL_LINES - 1)) * 100;
-    }
-
-    for (let i = 0; i < TOTAL_LINES; i++) {
       const hLine = document.createElement('div');
-      if (i === 0) {
-        hLine.className = 'h-line';
-        hLine.style.top = '0px';
-      } else if (i === TOTAL_LINES - 2) {
-        hLine.className = 'h-line dashed';
-        hLine.style.top = linePositionsY[i] + '%';
-      } else if (i === TOTAL_LINES - 1) {
-        continue;
-      } else {
-        hLine.className = 'h-line';
-        hLine.style.top = linePositionsY[i] + '%';
-      }
+      hLine.className = (i === 5) ? 'h-line center-line' : 'h-line';
+      hLine.style.top = linePositionsY[i] + '%';
       container.appendChild(hLine);
     }
-
-    const label22 = document.createElement('div');
-    label22.className = 'line-label';
-    label22.innerText = '22m';
-    label22.style.top = linePositionsY[TOTAL_LINES - 2] + '%';
-    container.appendChild(label22);
 
     updateAvailableChannels();
     updateDisplayImmediate();
@@ -632,10 +551,10 @@
     } else {
       currentAvailableOptions = [
         { label: 'Point (CL)', x: 2, key: 'Point' },
-        { label: 'Inside (左HL)', x: 1, key: 'Inside' },
-        { label: 'Inside (右HL)', x: 3, key: 'Inside' },
-        { label: 'Outside (左EL)', x: 0, key: 'Outside' },
-        { label: 'Outside (右EL)', x: 4, key: 'Outside' }
+        { label: 'Inside (左HL)', x: 1, key: 'Inside_Left' },
+        { label: 'Inside (右HL)', x: 3, key: 'Inside_Right' },
+        { label: 'Outside (左EL)', x: 0, key: 'Outside_Left' },
+        { label: 'Outside (右EL)', x: 4, key: 'Outside_Right' }
       ];
     }
 
@@ -670,15 +589,15 @@
         let cell = table[c.key];
         let span = document.createElement('span');
         span.style.background = c.hex;
-        span.style.color = '#fff';
+        span.style.color = '#000';
         span.style.padding = '1px 2px';
         span.style.borderRadius = '2px';
-        span.style.fontSize = '7px';
-        span.style.width = '14px';
+        span.style.fontSize = '6.5px';
+        span.style.fontWeight = 'bold';
+        span.style.width = '13px';
         span.style.textAlign = 'center';
         span.style.display = 'inline-block';
         span.innerText = cell.label;
-        span.title = `${c.name}: ${cell.label}`;
         colorsContainer.appendChild(span);
       });
 
@@ -687,80 +606,69 @@
     });
   }
 
-  function openTutorialModal() {
-    document.getElementById('modal-overlay').style.display = 'flex';
-  }
-
-  function closeTutorialModal(event) {
-    if (!event || event.target.id === 'modal-overlay' || event.target.classList.contains('close-btn')) {
-      document.getElementById('modal-overlay').style.display = 'none';
-    }
-  }
-
   function updateDisplayImmediate() {
     const token = document.getElementById('ball-token');
-    token.style.transition = 'left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
     token.style.left = X_POS[ballX] + '%';
     token.style.top = linePositionsY[ballY] + '%';
     
+    if (currentAttacker === 'COM') {
+      token.classList.add('com-ball');
+      document.getElementById('current-turn').innerText = 'COM (CPU)';
+      document.getElementById('current-turn').style.color = '#ff2a6d';
+    } else {
+      token.classList.remove('com-ball');
+      document.getElementById('current-turn').innerText = 'YOU (P1)';
+      document.getElementById('current-turn').style.color = '#00f2fe';
+    }
+
     document.getElementById('phase-num').innerText = currentPhase + '/10';
-    document.getElementById('try-count').innerText = tryAttemptCount;
-    document.getElementById('score-tries').innerText = totalTries;
+    document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
   function animatePassingMovement(newX, newY, onComplete) {
     const token = document.getElementById('ball-token');
-    token.style.transition = 'left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-    const startX = ballX;
+    token.style.transition = 'left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+    
+    token.style.left = X_POS[newX] + '%';
+    ballX = newX;
 
-    if (startX === newX) {
+    setTimeout(() => {
       token.style.top = linePositionsY[newY] + '%';
       ballY = newY;
-      setTimeout(onComplete, 220);
-      return;
-    }
+      setTimeout(onComplete, 250);
+    }, 200);
+  }
 
-    let pathXIndices = [];
-    let stepDirection = (newX > startX) ? 1 : -1;
-    let curr = startX + stepDirection;
-    while (curr !== newX) {
-      pathXIndices.push(curr);
-      curr += stepDirection;
-    }
-    pathXIndices.push(newX);
-
-    let stepIdx = 0;
-    function jumpToNextIntermediateX() {
-      if (stepIdx < pathXIndices.length) {
-        let intermediateX = pathXIndices[stepIdx];
-        token.style.left = X_POS[intermediateX] + '%';
-        ballX = intermediateX;
-        stepIdx++;
-        setTimeout(jumpToNextIntermediateX, 500);
-      } else {
-        setTimeout(() => {
-          token.style.top = linePositionsY[newY] + '%';
-          ballY = newY;
-          setTimeout(() => { if (onComplete) onComplete(); }, 220);
-        }, 120);
+  // CPUのアタックチャンネル自動判定（AI思考）
+  function selectCpuOption() {
+    // 相手ゴールに近い（勝負どころ）場合はEdgeやOutsideなどのアグレッシブな選択率を上昇
+    const isCloseToGoal = (ballY >= 8); // COMは下(Y=10)を目指す
+    
+    if (isCloseToGoal && Math.random() < 0.6) {
+      const aggressiveOpts = currentAvailableOptions.filter(o => o.key.includes('Edge') || o.key.includes('Outside') || o.key.includes('Short'));
+      if (aggressiveOpts.length > 0) {
+        return aggressiveOpts[Math.floor(Math.random() * aggressiveOpts.length)];
       }
     }
-    jumpToNextIntermediateX();
+    // 通常時はバランス良くランダム選択
+    return currentAvailableOptions[Math.floor(Math.random() * currentAvailableOptions.length)];
   }
 
   function executePlay() {
-    const selectedOption = JSON.parse(document.getElementById('channel-select').value);
+    let selectedOption;
+    if (currentAttacker === 'P1') {
+      selectedOption = JSON.parse(document.getElementById('channel-select').value);
+    } else {
+      selectedOption = selectCpuOption();
+    }
+
     const diceIndex = Math.floor(Math.random() * 6);
     const rolledMeta = COLORS_META[diceIndex];
     const cellData = PASS_TABLE[selectedOption.key][rolledMeta.key];
 
-    const colorBox = document.getElementById('dice-color-box');
-    colorBox.style.backgroundColor = rolledMeta.hex;
-    
+    document.getElementById('dice-color-box').style.backgroundColor = rolledMeta.hex;
     const textBox = document.getElementById('dice-text-box');
-    textBox.innerText = cellData.isKickPass ? '1A (アドバンテージ)' : (cellData.isOffload ? '1op (オフロード)' : cellData.label);
-    textBox.style.backgroundColor = '#222';
-    textBox.style.color = '#fff';
+    textBox.innerText = cellData.isKickPass ? '1A (ADVANTAGE)' : (cellData.isOffload ? '1OP (OFFLOAD)' : cellData.label);
 
     const isTO = (cellData.isTO || cellData.label === 'TO');
     const isKickPass = cellData.isKickPass;
@@ -773,212 +681,134 @@
     if (typeof result === 'number') {
       tempSteps = result;
       if (cellData.isCNB) isNextCB = true;
-    } else if (result === '1a' || result === '1op') {
+    } else if (result === '1A' || result === '1OP') {
       tempSteps = 1;
     } else {
       const cleanVal = parseInt(result);
-      if (!isNaN(cleanVal)) {
-        tempSteps = cleanVal;
-        if (cellData.isCNB) isNextCB = true;
-      } else {
-        tempSteps = 0;
-      }
+      tempSteps = !isNaN(cleanVal) ? cleanVal : 0;
+      if (cellData.isCNB) isNextCB = true;
     }
 
-    let logExtra = "";
-    if (hasCleanBreak && tempSteps > 0) {
-      tempSteps *= 2;
-      logExtra = " (⚡ブースト2倍!)";
-    }
+    if (hasCleanBreak && tempSteps > 0) tempSteps *= 2;
+    if (isNextCB) hasCleanBreak = true;
 
-    if (hasCleanBreak && tempSteps <= 0) {
-      hasCleanBreak = false;
-      logExtra = " (ブースト終了)";
-    }
-
-    if (isNextCB) {
-      hasCleanBreak = true;
-      logExtra = " 🔥【クリーンブレイク！次からゲイン2倍】";
-    }
-
-    let targetY = ballY - tempSteps;
+    // P1は上（Y減少）、COMは下（Y増加）に進む
+    let targetY = (currentAttacker === 'P1') ? ballY - tempSteps : ballY + tempSteps;
     let targetX = selectedOption.x;
 
-    let isOutside22m = (targetY >= TOTAL_LINES - 1);
-    if (isOutside22m) {
-      targetY = TOTAL_LINES - 1; 
-    }
+    let isPushedBackToOwnGoal = (currentAttacker === 'P1') ? (targetY >= TOTAL_LINES - 1) : (targetY <= 0);
     if (targetY < 0) targetY = 0;
+    if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 
     lockControls(true);
 
     animatePassingMovement(targetX, targetY, () => {
       updateAvailableChannels();
 
-      if (checkWinCondition()) return;
+      if (checkTryCondition()) return;
 
-      if (isTO) {
-        failGame("🔄 ターンオーバー！ボールを奪われました...");
-        return;
-      }
-      if (isOutside22m) {
-        failGame("⚠️ 22mラインの外へ押し出されました...");
+      if (isTO || isPushedBackToOwnGoal) {
+        switchTurn(isTO ? "TURNOVER! ボールを奪われました" : "押し戻されターンオーバー！");
         return;
       }
 
       if (isOffload) {
-        document.getElementById('log').innerText = `【Middle】➔ 1op！ 1進んでオフロードパス！...`;
-
+        document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1OP！ オフロードパス発動！`;
         setTimeout(() => {
-          const opRoll = Math.floor(Math.random() * 6);
-
-          if (opRoll === 0) {
-            failGame("❌ オフロードパス：ハンドリングエラー！攻撃終了です...");
+          const opGain = Math.floor(Math.random() * 6);
+          if (opGain === 0) {
+            switchTurn("OFFLOAD FAILED! ハンドリングエラー...");
           } else {
-            const opGain = opRoll; 
-            
-            let opTargetY = ballY - opGain;
-            let isOpOutside = (opTargetY >= TOTAL_LINES - 1);
-            if (isOpOutside) opTargetY = TOTAL_LINES - 1;
+            let opTargetY = (currentAttacker === 'P1') ? ballY - opGain : ballY + opGain;
             if (opTargetY < 0) opTargetY = 0;
+            if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
-            document.getElementById('log').innerText = `⚡ オフロードパス成功！さらに +${opGain} ゲイン！！`;
-
-            const token = document.getElementById('ball-token');
+            document.getElementById('log').innerText = `OFFLOAD SUCCESS! ＋${opGain} GAIN!!`;
             ballY = opTargetY;
-            token.style.top = linePositionsY[ballY] + '%';
+            document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
             setTimeout(() => {
-              if (isOpOutside) {
-                failGame("⚠️ 22mラインの外へ押し出されました...");
-                return;
-              }
-              if (checkWinCondition()) return;
-
-              currentPhase++;
-              if (currentPhase > maxPhases) {
-                failGame("10フェイズ制限オーバー！");
-                return;
-              }
-
-              document.getElementById('phase-num').innerText = currentPhase + '/10';
-              lockControls(false);
-              updateAvailableChannels();
-            }, 800);
+              if (checkTryCondition()) return;
+              nextPhase();
+            }, 600);
           }
-        }, 500);
-
+        }, 600);
         return;
       }
 
-      if (isKickPass && (ballX === 0 || ballX === 4)) {
-        const originalEdgeX = ballX;
-        const originalY = ballY;
-        const targetEdgeX = (originalEdgeX === 0) ? 4 : 0;
-        const targetY = 0;
-
-        document.getElementById('log').innerText = `【Edge】➔ 1a！ アドバンテージ！ クロスキックで一発トライを狙う！...`;
-
-        setTimeout(() => {
-          document.getElementById('log').innerText = ` 逆エッジの味方にクロスキック！`;
-
-          const token = document.getElementById('ball-token');
-          token.style.transition = 'left 3.0s cubic-bezier(0.15, 0.85, 0.35, 1), top 3.0s cubic-bezier(0.15, 0.85, 0.35, 1)';
-          token.classList.add('kicking');
-          
-          ballX = targetEdgeX;
-          ballY = targetY;
-          token.style.left = X_POS[ballX] + '%';
-          token.style.top = linePositionsY[0] + '%';
-
-          setTimeout(() => {
-            token.classList.remove('kicking');
-            const isSuccess = Math.random() < 0.3333;
-
-            if (isSuccess) {
-              totalTries++;
-              document.getElementById('score-tries').innerText = totalTries;
-              document.getElementById('log').innerText = `✨ キャッチ成功！見事なクロスキックトライ！！`;
-              setTimeout(() => { resetGameSession(); }, 2500);
-            } else {
-              document.getElementById('log').innerText = `❌ キャッチ失敗... 元のEdgeの位置に戻り、フェイズ1でリスタートします。`;
-              
-              ballX = originalEdgeX;
-              ballY = originalY;
-              currentPhase = 1;
-              hasCleanBreak = false;
-              
-              token.style.transition = 'left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-              token.style.left = X_POS[ballX] + '%';
-              token.style.top = linePositionsY[ballY] + '%';
-
-              setTimeout(() => {
-                lockControls(false);
-                updateAvailableChannels();
-                updateDisplayImmediate();
-                
-                document.getElementById('dice-color-box').style.backgroundColor = '#333';
-                document.getElementById('dice-text-box').innerText = '-';
-                document.getElementById('dice-text-box').style.backgroundColor = '#fff';
-                document.getElementById('dice-text-box').style.color = '#000';
-              }, 600);
-            }
-          }, 3000); 
-        }, 2000); 
-
-        return;
-      }
-
-      currentPhase++;
-      document.getElementById('log').innerText = `【${selectedOption.key}】 ➔ [${rolledMeta.name}] ${cellData.label}${logExtra}`;
-
-      if (currentPhase > maxPhases) {
-        failGame("⏱️ 10フェイズ制限オーバー！");
-        return;
-      }
-
-      document.getElementById('phase-num').innerText = currentPhase + '/10';
-      lockControls(false);
+      nextPhase();
     });
   }
 
-  function checkWinCondition() {
-    if (ballY <= 0) {
-      totalTries++;
-      document.getElementById('score-tries').innerText = totalTries;
-      document.getElementById('log').innerText = `🎉 トライ！`;
+  function nextPhase() {
+    currentPhase++;
+    if (currentPhase > maxPhases) {
+      switchTurn("フェイズ限界！ターンオーバー！");
+      return;
+    }
+
+    document.getElementById('phase-num').innerText = currentPhase + '/10';
+
+    if (currentAttacker === 'P1') {
+      lockControls(false);
+    } else {
+      // CPUの連続ターン思考ディレイ
+      document.getElementById('log').innerText = `COMの攻撃ターン...思考中`;
+      setTimeout(() => { executePlay(); }, 1200);
+    }
+  }
+
+  function checkTryCondition() {
+    if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
+      if (currentAttacker === 'P1') p1Tries++; else comTries++;
+      document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
+      document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} 得点！！`;
       
-      lockControls(true);
-      setTimeout(() => { resetGameSession(); }, 2500);
+      setTimeout(() => { resetKickOff(); }, 2000);
       return true;
     }
     return false;
   }
 
-  function failGame(reasonText) {
-    document.getElementById('log').innerText = `${reasonText} リスタートします。`;
-    lockControls(true);
+  function switchTurn(reasonText) {
+    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+    document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
+    
     setTimeout(() => {
-      tryAttemptCount++;
-      resetGameSession();
-    }, 2500);
+      currentPhase = 1;
+      hasCleanBreak = false;
+      updateDisplayImmediate();
+      updateAvailableChannels();
+
+      if (currentAttacker === 'COM') {
+        lockControls(true);
+        document.getElementById('log').innerText = `COMの攻撃ターン...`;
+        setTimeout(() => { executePlay(); }, 1200);
+      } else {
+        lockControls(false);
+        document.getElementById('log').innerText = `あなたの攻撃ターン！10フェイズ以内にトライを獲れ！`;
+      }
+    }, 1800);
   }
 
-  function resetGameSession() {
+  function resetKickOff() {
     ballX = 2;
-    ballY = 10; 
+    ballY = 5; // フィールド中央から再開
     currentPhase = 1;
     hasCleanBreak = false;
-    lockControls(false);
-    updateAvailableChannels();
+    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1'; // トライされた側がキックオフ（交互）
+    
     updateDisplayImmediate();
-    
-    document.getElementById('dice-color-box').style.backgroundColor = '#333';
-    document.getElementById('dice-text-box').innerText = '-';
-    document.getElementById('dice-text-box').style.backgroundColor = '#fff';
-    document.getElementById('dice-text-box').style.color = '#000';
-    
-    document.getElementById('log').innerText = `再スタート！10フェイズ以内にトライを獲りきれ！`;
+    updateAvailableChannels();
+
+    if (currentAttacker === 'COM') {
+      lockControls(true);
+      document.getElementById('log').innerText = `COMのキックオフで再開！`;
+      setTimeout(() => { executePlay(); }, 1200);
+    } else {
+      lockControls(false);
+      document.getElementById('log').innerText = `あなたのキックオフで再開！`;
+    }
   }
 
   function lockControls(isLock) {
@@ -986,7 +816,16 @@
     document.getElementById('channel-select').disabled = isLock;
   }
 
-  setupBoard();
+  function openTutorialModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+  function closeTutorialModal(event) {
+    if (!event || event.target.id === 'modal-overlay' || event.target.classList.contains('close-btn')) {
+      document.getElementById('modal-overlay').style.display = 'none';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setupBoard();
+  });
 </script>
 </body>
 </html>
