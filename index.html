@@ -155,7 +155,7 @@
     width: 10px;
     height: 18px;
     border-radius: 50% / 50%;
-    transition: left 0.5s cubic-bezier(0.25, 1, 0.5, 1), top 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     transform: translate(-50%, -50%) rotate(-15deg);
     box-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe;
     z-index: 10;
@@ -168,13 +168,6 @@
     box-shadow: 0 0 10px #ff2a6d, 0 0 20px #ff2a6d;
     background: radial-gradient(ellipse at 35% 35%, #ffffff 0%, #ff2a6d 70%, #990033 100%);
   }
-
-  @keyframes kickPassArc {
-    0% { transform: translate(-50%, -50%) rotate(-15deg) scale(1); }
-    50% { transform: translate(-50%, -180%) rotate(180deg) scale(1.6); box-shadow: 0 0 25px #00f2fe; }
-    100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
-  }
-  .kicking { animation: kickPassArc 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
   #controls {
     width: 285px;
@@ -371,6 +364,19 @@
   .tutorial-section { margin-bottom: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px; border-radius: 4px; border-left: 2px solid #00f2fe; }
   .tutorial-section h4 { margin: 0 0 2px 0; color: #00f2fe; font-size: 8.5px; }
   .tutorial-section p { margin: 0; }
+
+  /* 勝利画面用ボタン */
+  .restart-btn {
+    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    color: #090a0f;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
 </style>
 </head>
 <body>
@@ -420,7 +426,7 @@
       <div id="dice-text-box">-</div>
     </div>
 
-    <div id="log">5フェイズ以内に相手インゴールへ攻め込め！</div>
+    <div id="log">10トライ先取で勝利！攻め込め！</div>
   </div>
 </div>
 
@@ -435,18 +441,21 @@
         <h4>【対戦ルール】</h4>
         <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
         ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
-        ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代（TURNOVER）！</p>
+        ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代！<br>
+        ・<strong>自陣ゴールまで押し戻された場合</strong>：ゴール直前のラインから相手のアタックでリスタート！</p>
       </div>
 
       <div class="tutorial-section">
         <h4>【勝利条件】</h4>
-        <p>相手のTRY ZONEにボールを運び、先にトライを勝ち取ろう！</p>
+        <p>先に<strong>10トライ</strong>を取ったプレイヤーの勝利！</p>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  const WINNING_TRIES = 10; // 先取勝利条件
+
   const COLORS_META = [
     { name: '赤', key: 'red', hex: '#ff2a6d' },
     { name: '青', key: 'blue', hex: '#00f2fe' },
@@ -464,7 +473,6 @@
     'Outside':     { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
     'Edge':        { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5CB'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} },
 
-    // 中央（CL: X=2）位置専用のインサイド／アウトサイド配置テーブル
     'Inside_Left': { red: {val: 1, label: '1'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: 1, label: '1'}, green: {val: 2, label: '2'}, orange: {val: -1, label: '-1'} },
     'Inside_Right':{ red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 2, label: '2'}, green: {val: 0, label: '0'}, orange: {val: '1OP', isOffload: true, label: '1OP'} },
     'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 5, isCNB: true, label: '5CB'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
@@ -550,7 +558,6 @@
         { label: 'Outside (左EL)', x: 0, key: 'Outside' }
       ];
     } else {
-      // 中央（X=2）配置時：左右で独立したインサイド／アウトサイドテーブルを自動適用
       currentAvailableOptions = [
         { label: 'Point (CL)', x: 2, key: 'Point' },
         { label: 'Inside (左HL)', x: 1, key: 'Inside_Left' },
@@ -629,8 +636,6 @@
 
   function animatePassingMovement(newX, newY, onComplete) {
     const token = document.getElementById('ball-token');
-    token.style.transition = 'left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-    
     token.style.left = X_POS[newX] + '%';
     ballX = newX;
 
@@ -693,7 +698,9 @@
     let targetY = (currentAttacker === 'P1') ? ballY - tempSteps : ballY + tempSteps;
     let targetX = selectedOption.x;
 
+    // 自陣ゴールに押し戻されたかどうかの判定
     let isPushedBackToOwnGoal = (currentAttacker === 'P1') ? (targetY >= TOTAL_LINES - 1) : (targetY <= 0);
+    
     if (targetY < 0) targetY = 0;
     if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 
@@ -704,8 +711,14 @@
 
       if (checkTryCondition()) return;
 
-      if (isTO || isPushedBackToOwnGoal) {
-        switchTurn(isTO ? "TURNOVER! ボールを奪われました" : "押し戻されターンオーバー！");
+      // 自陣ゴールまで押し下げられた場合は、ゴール直前ラインからの相手アタックでリスタート
+      if (isPushedBackToOwnGoal) {
+        switchTurnToGoalLine("自陣ゴールまで押し戻された！相手のゴール前アタックでリスタート！");
+        return;
+      }
+
+      if (isTO) {
+        switchTurn("TURNOVER! ボールを奪われました");
         return;
       }
 
@@ -758,14 +771,21 @@
     if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
       if (currentAttacker === 'P1') p1Tries++; else comTries++;
       document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
-      document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} 得点！！`;
       
+      // 10トライ達成（勝利）チェック
+      if (p1Tries >= WINNING_TRIES || comTries >= WINNING_TRIES) {
+        showGameSetModal(p1Tries >= WINNING_TRIES ? 'P1' : 'COM');
+        return true;
+      }
+
+      document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} 得点！！`;
       setTimeout(() => { resetKickOff(); }, 2000);
       return true;
     }
     return false;
   }
 
+  // 通常のターンオーバー処理（位置を維持したまま攻守交代）
   function switchTurn(reasonText) {
     currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
@@ -782,9 +802,36 @@
         setTimeout(() => { executePlay(); }, 1200);
       } else {
         lockControls(false);
-        document.getElementById('log').innerText = `あなたの攻撃ターン！5フェイズ以内にトライを獲れ！`;
+        document.getElementById('log').innerText = `あなたの攻撃ターン！`;
       }
     }, 1800);
+  }
+
+  // 自陣インゴールまで押し戻された場合の特別ターンオーバー（相手のゴール直前ラインから再開）
+  function switchTurnToGoalLine(reasonText) {
+    currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+    
+    // P1が攻め込まれていた場合、COMの攻撃位置はゴール直前（Y=9）。COMが攻め込まれていた場合はP1の攻撃位置（Y=1）。
+    ballY = (currentAttacker === 'COM') ? 9 : 1;
+    ballX = 2; // 中央から再開
+
+    document.getElementById('log').innerText = reasonText;
+
+    setTimeout(() => {
+      currentPhase = 1;
+      hasCleanBreak = false;
+      updateDisplayImmediate();
+      updateAvailableChannels();
+
+      if (currentAttacker === 'COM') {
+        lockControls(true);
+        document.getElementById('log').innerText = `COMのゴール前アタック！ピンチ！`;
+        setTimeout(() => { executePlay(); }, 1200);
+      } else {
+        lockControls(false);
+        document.getElementById('log').innerText = `相手ゴール直前からの攻撃チャンス！`;
+      }
+    }, 2000);
   }
 
   function resetKickOff() {
@@ -799,11 +846,11 @@
 
     if (currentAttacker === 'COM') {
       lockControls(true);
-      document.getElementById('log').innerText = `COMのボールで再開！`;
+      document.getElementById('log').innerText = `COMのボールでキックオフ！`;
       setTimeout(() => { executePlay(); }, 1200);
     } else {
       lockControls(false);
-      document.getElementById('log').innerText = `あなたのボールで再開！`;
+      document.getElementById('log').innerText = `あなたのボールでキックオフ！`;
     }
   }
 
@@ -812,7 +859,64 @@
     document.getElementById('channel-select').disabled = isLock;
   }
 
-  function openTutorialModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+  function showGameSetModal(winner) {
+    lockControls(true);
+    const modal = document.getElementById('modal-overlay');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    title.innerText = "GAME SET!!";
+    const isP1Win = (winner === 'P1');
+    
+    body.innerHTML = `
+      <div style="text-align: center; padding: 10px;">
+        <h2 style="color: ${isP1Win ? '#00f2fe' : '#ff2a6d'}; margin: 0 0 10px 0;">
+          ${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
+        </h2>
+        <p style="font-size: 11px; margin-bottom: 15px;">
+          ${isP1Win ? '10トライ先取！見事CPUに勝利しました！' : 'COMに10トライを奪われました...'}
+        </p>
+        <button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
+      </div>
+    `;
+    modal.style.display = 'flex';
+  }
+
+  function restartGame() {
+    p1Tries = 0;
+    comTries = 0;
+    currentAttacker = 'P1';
+    document.getElementById('modal-overlay').style.display = 'none';
+    
+    // ルール用モーダルの初期テキストを復元
+    restoreTutorialModalText();
+    
+    resetKickOff();
+  }
+
+  function restoreTutorialModalText() {
+    document.getElementById('modal-title').innerText = "VS CPU RULES";
+    document.getElementById('modal-body').innerHTML = `
+      <div class="tutorial-section">
+        <h4>【対戦ルール】</h4>
+        <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
+        ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
+        ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代！<br>
+        ・<strong>自陣ゴールまで押し戻された場合</strong>：ゴール直前のラインから相手のアタックでリスタート！</p>
+      </div>
+
+      <div class="tutorial-section">
+        <h4>【勝利条件】</h4>
+        <p>先に<strong>10トライ</strong>を取ったプレイヤーの勝利！</p>
+      </div>
+    `;
+  }
+
+  function openTutorialModal() { 
+    restoreTutorialModalText();
+    document.getElementById('modal-overlay').style.display = 'flex'; 
+  }
+
   function closeTutorialModal(event) {
     if (!event || event.target.id === 'modal-overlay' || event.target.classList.contains('close-btn')) {
       document.getElementById('modal-overlay').style.display = 'none';
