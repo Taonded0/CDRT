@@ -155,7 +155,7 @@
     width: 10px;
     height: 18px;
     border-radius: 50% / 50%;
-    transition: left 0.4s cubic-bezier(0.25, 1, 0.5, 1), top 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: left 0.25s linear, top 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     transform: translate(-50%, -50%) rotate(-15deg);
     box-shadow: 0 0 10px #00f2fe, 0 0 20px #00f2fe;
     z-index: 10;
@@ -466,7 +466,6 @@
   ];
 
   const PASS_TABLE = {
-    'Point':       { red: {val: 1, label: '1'}, blue: {val: 0, label: '0'}, yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 0, label: '0'},  orange: {val: 0, label: '0'} },
     'Inside':      { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
     'Middle':      { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
     'Short':       { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3CB'}, yellow: {val: -1, label: '-1'},purple: {val: 0, label: '0'}, green: {val: 0, label: '0'},  orange: {val: 1, label: '1'} },
@@ -521,13 +520,13 @@
     updateDisplayImmediate();
   }
 
+  /* Pointを除外したチャンネル設定 */
   function updateAvailableChannels() {
     const channelSelect = document.getElementById('channel-select');
     channelSelect.innerHTML = '';
     
     if (ballX === 0) {
       currentAvailableOptions = [
-        { label: 'Point (左EL)', x: 0, key: 'Point' },
         { label: 'Inside (左HL)', x: 1, key: 'Inside' },
         { label: 'Middle (CL)', x: 2, key: 'Middle' },
         { label: 'Outside (右HL)', x: 3, key: 'Outside' },
@@ -535,7 +534,6 @@
       ];
     } else if (ballX === 4) {
       currentAvailableOptions = [
-        { label: 'Point (右EL)', x: 4, key: 'Point' },
         { label: 'Inside (右HL)', x: 3, key: 'Inside' },
         { label: 'Middle (CL)', x: 2, key: 'Middle' },
         { label: 'Outside (左HL)', x: 1, key: 'Outside' },
@@ -544,7 +542,6 @@
     } else if (ballX === 1) {
       currentAvailableOptions = [
         { label: 'Short (左EL)', x: 0, key: 'Short' },
-        { label: 'Point (左HL)', x: 1, key: 'Point' },
         { label: 'Inside (CL)', x: 2, key: 'Inside' },
         { label: 'Middle (右HL)', x: 3, key: 'Middle' },
         { label: 'Outside (右EL)', x: 4, key: 'Outside' }
@@ -552,14 +549,12 @@
     } else if (ballX === 3) {
       currentAvailableOptions = [
         { label: 'Short (右EL)', x: 4, key: 'Short' },
-        { label: 'Point (右HL)', x: 3, key: 'Point' },
         { label: 'Inside (CL)', x: 2, key: 'Inside' },
         { label: 'Middle (左HL)', x: 1, key: 'Middle' },
         { label: 'Outside (左EL)', x: 0, key: 'Outside' }
       ];
     } else {
       currentAvailableOptions = [
-        { label: 'Point (CL)', x: 2, key: 'Point' },
         { label: 'Inside (左HL)', x: 1, key: 'Inside_Left' },
         { label: 'Inside (右HL)', x: 3, key: 'Inside_Right' },
         { label: 'Outside (左EL)', x: 0, key: 'Outside_Left' },
@@ -606,7 +601,7 @@
         span.style.width = '13px';
         span.style.textAlign = 'center';
         span.style.display = 'inline-block';
-        span.innerText = cell.label;
+        span.innerText = cell ? cell.label : '-';
         colorsContainer.appendChild(span);
       });
 
@@ -634,16 +629,44 @@
     document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
+  /* 縦線（グリッド線）ごとに0.4秒間止まりながら動くアニメーション */
   function animatePassingMovement(newX, newY, onComplete) {
     const token = document.getElementById('ball-token');
-    token.style.left = X_POS[newX] + '%';
-    ballX = newX;
+    const startX = ballX;
+    const step = (newX > startX) ? 1 : -1;
+    const diff = Math.abs(newX - startX);
 
-    setTimeout(() => {
+    if (diff === 0) {
+      // 横移動がない場合、直接縦の移動へ
       token.style.top = linePositionsY[newY] + '%';
       ballY = newY;
-      setTimeout(onComplete, 250);
-    }, 200);
+      setTimeout(onComplete, 400);
+      return;
+    }
+
+    let currentX = startX;
+    let count = 0;
+
+    function moveOneStep() {
+      if (count < diff) {
+        currentX += step;
+        token.style.left = X_POS[currentX] + '%';
+        ballX = currentX;
+        count++;
+
+        // 1つの線に移動後、0.4秒間一時停止してから次の線へ動く
+        setTimeout(() => {
+          moveOneStep();
+        }, 400);
+      } else {
+        // 横移動が完了したら目標の縦位置（Y）へ移動
+        token.style.top = linePositionsY[newY] + '%';
+        ballY = newY;
+        setTimeout(onComplete, 400);
+      }
+    }
+
+    moveOneStep();
   }
 
   function selectCpuOption() {
@@ -676,6 +699,7 @@
 
     const isTO = (cellData.isTO || cellData.label === 'TO');
     const isOffload = cellData.isOffload;
+    const isKickPass = cellData.isKickPass || (cellData.label === '1A');
 
     let tempSteps = 0;
     let isNextCB = false;
@@ -705,6 +729,10 @@
     if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 
     lockControls(true);
+
+    if (isKickPass) {
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1A! キックパス発動！アドバンテージ獲得！`;
+    }
 
     animatePassingMovement(targetX, targetY, () => {
       updateAvailableChannels();
@@ -785,7 +813,6 @@
     return false;
   }
 
-  // 通常のターンオーバー処理（位置を維持したまま攻守交代）
   function switchTurn(reasonText) {
     currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
@@ -807,11 +834,9 @@
     }, 1800);
   }
 
-  // 自陣インゴールまで押し戻された場合の特別ターンオーバー（相手のゴール直前ラインから再開）
   function switchTurnToGoalLine(reasonText) {
     currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     
-    // P1が攻め込まれていた場合、COMの攻撃位置はゴール直前（Y=9）。COMが攻め込まれていた場合はP1の攻撃位置（Y=1）。
     ballY = (currentAttacker === 'COM') ? 9 : 1;
     ballX = 2; // 中央から再開
 
@@ -887,10 +912,7 @@
     comTries = 0;
     currentAttacker = 'P1';
     document.getElementById('modal-overlay').style.display = 'none';
-    
-    // ルール用モーダルの初期テキストを復元
     restoreTutorialModalText();
-    
     resetKickOff();
   }
 
