@@ -163,7 +163,6 @@
     border: 1px solid #ffffff;
   }
 
-  /* COMのボールエフェクト */
   #ball-token.com-ball {
     box-shadow: 0 0 10px #ff2a6d, 0 0 20px #ff2a6d;
     background: radial-gradient(ellipse at 35% 35%, #ffffff 0%, #ff2a6d 70%, #990033 100%);
@@ -331,7 +330,6 @@
   .channel-guide-name { color: #94a3b8; width: 80px; overflow: hidden; white-space: nowrap; }
   .channel-guide-colors { display: flex; gap: 1px; }
 
-  /* モーダル */
   #modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -365,7 +363,6 @@
   .tutorial-section h4 { margin: 0 0 2px 0; color: #00f2fe; font-size: 8.5px; }
   .tutorial-section p { margin: 0; }
 
-  /* 勝利画面用ボタン */
   .restart-btn {
     background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
     color: #090a0f;
@@ -454,7 +451,126 @@
 </div>
 
 <script>
-  const WINNING_TRIES = 5; // 先取勝利条件
+  /* --- WEB AUDIO API 効果音ジェネレーター --- */
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+    }
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // 1. パス音（横移動時の風切りスウッシュ音）
+  function playPassSound() {
+    initAudio();
+    const bufferSize = audioCtx.sampleRate * 0.15; // 0.15秒の音
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1; // ノイズ生成
+    }
+
+    const whiteNoise = audioCtx.createBufferSource();
+    whiteNoise.buffer = buffer;
+
+    // バンドパスフィルターで風を切るような音域を作る
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 3.0;
+
+    const now = audioCtx.currentTime;
+    // 周波数を急激にスウィープ（800Hz -> 2400Hz -> 400Hz）させて「シュッ」感を演出
+    filter.frequency.setValueAtTime(600, now);
+    filter.frequency.exponentialRampToValueAtTime(2400, now + 0.07);
+    filter.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.01, now);
+    gainNode.gain.linearRampToValueAtTime(0.3, now + 0.06);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    whiteNoise.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    whiteNoise.start(now);
+  }
+
+  // 2. ゲイン/縦移動音（ピッチが上がる音）
+  function playGainSound(isPositive) {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const now = audioCtx.currentTime;
+
+    osc.type = 'sine';
+    if (isPositive) {
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(440, now + 0.15);
+    } else {
+      osc.frequency.setValueAtTime(350, now);
+      osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+    }
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
+
+  // 3. トライ成功ファンファーレ音
+  function playTrySound() {
+    initAudio();
+    const now = audioCtx.currentTime;
+    const notes = [261.63, 329.63, 392.00, 523.25]; // C E G C
+    notes.forEach((freq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq;
+
+      const startTime = now + idx * 0.08;
+      const duration = (idx === notes.length - 1) ? 0.4 : 0.1;
+
+      gain.gain.setValueAtTime(0.25, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    });
+  }
+
+  // 4. ターンオーバー/失敗音
+  function playTurnoverSound() {
+    initAudio();
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.setValueAtTime(110, now + 0.12);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(now);
+    osc.stop(now + 0.3);
+  }
+
+  /* --- ゲームロジック --- */
+  const WINNING_TRIES = 5;
 
   const COLORS_META = [
     { name: '赤', key: 'red', hex: '#ff2a6d' },
@@ -465,7 +581,6 @@
     { name: '橙', key: 'orange', hex: '#ff7675' }
   ];
 
-  /* 3CB, 4CB, 5CB -> 3, 4, 5 / 1A -> 1 へ修正 */
   const PASS_TABLE = {
     'Inside':      { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
     'Middle':      { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
@@ -628,8 +743,8 @@
     document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
-  /* 縦線（グリッド線）ごとに0.3秒間止まりながら動くアニメーション */
-  function animatePassingMovement(newX, newY, onComplete) {
+  /* 縦線移動時に「パス音（シュッ）」を鳴らすアニメーション */
+  function animatePassingMovement(newX, newY, tempSteps, onComplete) {
     const token = document.getElementById('ball-token');
     const startX = ballX;
     const step = (newX > startX) ? 1 : -1;
@@ -638,6 +753,7 @@
     if (diff === 0) {
       token.style.top = linePositionsY[newY] + '%';
       ballY = newY;
+      if (tempSteps !== 0) playGainSound(tempSteps > 0);
       setTimeout(onComplete, 300);
       return;
     }
@@ -652,12 +768,16 @@
         ballX = currentX;
         count++;
 
+        // 横移動時にパス効果音を再生
+        playPassSound();
+
         setTimeout(() => {
           moveOneStep();
         }, 400);
       } else {
         token.style.top = linePositionsY[newY] + '%';
         ballY = newY;
+        if (tempSteps !== 0) playGainSound(tempSteps > 0);
         setTimeout(onComplete, 400);
       }
     }
@@ -678,6 +798,8 @@
   }
 
   function executePlay() {
+    initAudio(); // ボタンクリックなどのアクション時にAudioContextをアクティブ化
+
     let selectedOption;
     if (currentAttacker === 'P1') {
       selectedOption = JSON.parse(document.getElementById('channel-select').value);
@@ -696,7 +818,6 @@
     const isTO = (cellData.isTO || cellData.label === 'TO');
     const isOffload = cellData.isOffload;
 
-    // 単純に数値の分だけ移動量を計算
     let tempSteps = 0;
     const result = cellData.val;
 
@@ -727,17 +848,19 @@
       document.getElementById('log').innerText = `【${selectedOption.label}】➔ 堅いディフェンス！`;
     }
 
-    animatePassingMovement(targetX, targetY, () => {
+    animatePassingMovement(targetX, targetY, tempSteps, () => {
       updateAvailableChannels();
 
       if (checkTryCondition()) return;
 
       if (isPushedBackToOwnGoal) {
+        playTurnoverSound();
         switchTurnToGoalLine("自陣ゴールまで押し戻された！相手のゴール前アタックでリスタート！");
         return;
       }
 
       if (isTO) {
+        playTurnoverSound();
         switchTurn("TURNOVER! ボールを奪われました");
         return;
       }
@@ -747,12 +870,14 @@
         setTimeout(() => {
           const opGain = Math.floor(Math.random() * 6);
           if (opGain === 0) {
+            playTurnoverSound();
             switchTurn("OFFLOAD FAILED! ハンドリングエラー...");
           } else {
             let opTargetY = (currentAttacker === 'P1') ? ballY - opGain : ballY + opGain;
             if (opTargetY < 0) opTargetY = 0;
             if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
+            playGainSound(true);
             document.getElementById('log').innerText = `OFFLOAD SUCCESS! ＋${opGain} GAIN!!`;
             ballY = opTargetY;
             document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
@@ -773,6 +898,7 @@
   function nextPhase() {
     currentPhase++;
     if (currentPhase > maxPhases) {
+      playTurnoverSound();
       switchTurn("攻撃終了！ターンオーバー！");
       return;
     }
@@ -789,6 +915,7 @@
 
   function checkTryCondition() {
     if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
+      playTrySound(); // トライサウンドを再生
       if (currentAttacker === 'P1') p1Tries++; else comTries++;
       document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
       
