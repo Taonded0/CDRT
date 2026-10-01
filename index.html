@@ -465,17 +465,18 @@
     { name: '橙', key: 'orange', hex: '#ff7675' }
   ];
 
+  /* 3CB, 4CB, 5CB -> 3, 4, 5 / 1A -> 1 へ修正 */
   const PASS_TABLE = {
     'Inside':      { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'},yellow: {val: 0, label: '0'},  purple: {val: 1, label: '1'},  green: {val: 1, label: '1'},  orange: {val: 1, label: '1'} },
     'Middle':      { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'}, purple: {val: 0, label: '0'},  green: {val: 1, label: '1'},  orange: {val: '1OP', isOffload: true, label: '1OP'} },
-    'Short':       { red: {val: 2, label: '2'}, blue: {val: 3, isCNB: true, label: '3CB'}, yellow: {val: -1, label: '-1'},purple: {val: 0, label: '0'}, green: {val: 0, label: '0'},  orange: {val: 1, label: '1'} },
-    'Outside':     { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, isCNB: true, label: '4CB'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
-    'Edge':        { red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 3, label: '3'},  purple: {val: 5, isCNB: true, label: '5CB'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} },
+    'Short':       { red: {val: 2, label: '2'}, blue: {val: 3, label: '3'}, yellow: {val: -1, label: '-1'},purple: {val: 0, label: '0'}, green: {val: 0, label: '0'},  orange: {val: 1, label: '1'} },
+    'Outside':     { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 4, label: '4'}, purple: {val: -2, label: '-2'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
+    'Edge':        { red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 3, label: '3'},  purple: {val: 5, label: '5'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: -2, label: '-2'} },
 
     'Inside_Left': { red: {val: 1, label: '1'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: 1, label: '1'}, green: {val: 2, label: '2'}, orange: {val: -1, label: '-1'} },
     'Inside_Right':{ red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 2, label: '2'}, green: {val: 0, label: '0'}, orange: {val: '1OP', isOffload: true, label: '1OP'} },
-    'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: '1A', isKickPass: true, label: '1A'}, yellow: {val: 5, isCNB: true, label: '5CB'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
-    'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, isCNB: true, label: '4CB'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
+    'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 5, label: '5'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
+    'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
   };
 
   const TOTAL_LINES = 11;
@@ -487,7 +488,6 @@
   let maxPhases = 5;
   let p1Tries = 0;
   let comTries = 0;
-  let hasCleanBreak = false;
 
   let currentAvailableOptions = [];
   const X_POS = [10, 30, 50, 70, 90];
@@ -520,7 +520,6 @@
     updateDisplayImmediate();
   }
 
-  /* Pointを除外したチャンネル設定 */
   function updateAvailableChannels() {
     const channelSelect = document.getElementById('channel-select');
     channelSelect.innerHTML = '';
@@ -637,7 +636,6 @@
     const diff = Math.abs(newX - startX);
 
     if (diff === 0) {
-      // 横移動がない場合、直接縦の移動へ
       token.style.top = linePositionsY[newY] + '%';
       ballY = newY;
       setTimeout(onComplete, 400);
@@ -654,12 +652,10 @@
         ballX = currentX;
         count++;
 
-        // 1つの線に移動後、0.4秒間一時停止してから次の線へ動く
         setTimeout(() => {
           moveOneStep();
         }, 400);
       } else {
-        // 横移動が完了したら目標の縦位置（Y）へ移動
         token.style.top = linePositionsY[newY] + '%';
         ballY = newY;
         setTimeout(onComplete, 400);
@@ -695,34 +691,27 @@
 
     document.getElementById('dice-color-box').style.backgroundColor = rolledMeta.hex;
     const textBox = document.getElementById('dice-text-box');
-    textBox.innerText = cellData.isKickPass ? '1A (ADVANTAGE)' : (cellData.isOffload ? '1OP (OFFLOAD)' : cellData.label);
+    textBox.innerText = cellData.isOffload ? '1OP (OFFLOAD)' : cellData.label;
 
     const isTO = (cellData.isTO || cellData.label === 'TO');
     const isOffload = cellData.isOffload;
-    const isKickPass = cellData.isKickPass || (cellData.label === '1A');
 
+    // 単純に数値の分だけ移動量を計算
     let tempSteps = 0;
-    let isNextCB = false;
     const result = cellData.val;
 
     if (typeof result === 'number') {
       tempSteps = result;
-      if (cellData.isCNB) isNextCB = true;
-    } else if (result === '1A' || result === '1OP') {
+    } else if (result === '1OP') {
       tempSteps = 1;
     } else {
       const cleanVal = parseInt(result);
       tempSteps = !isNaN(cleanVal) ? cleanVal : 0;
-      if (cellData.isCNB) isNextCB = true;
     }
-
-    if (hasCleanBreak && tempSteps > 0) tempSteps *= 2;
-    if (isNextCB) hasCleanBreak = true;
 
     let targetY = (currentAttacker === 'P1') ? ballY - tempSteps : ballY + tempSteps;
     let targetX = selectedOption.x;
 
-    // 自陣ゴールに押し戻されたかどうかの判定
     let isPushedBackToOwnGoal = (currentAttacker === 'P1') ? (targetY >= TOTAL_LINES - 1) : (targetY <= 0);
     
     if (targetY < 0) targetY = 0;
@@ -730,8 +719,12 @@
 
     lockControls(true);
 
-    if (isKickPass) {
-      document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1A! キックパス発動！アドバンテージ獲得！`;
+    if (tempSteps > 0) {
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲイン！`;
+    } else if (tempSteps < 0) {
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 後退！`;
+    } else {
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲイン（平行移動）`;
     }
 
     animatePassingMovement(targetX, targetY, () => {
@@ -739,7 +732,6 @@
 
       if (checkTryCondition()) return;
 
-      // 自陣ゴールまで押し下げられた場合は、ゴール直前ラインからの相手アタックでリスタート
       if (isPushedBackToOwnGoal) {
         switchTurnToGoalLine("自陣ゴールまで押し戻された！相手のゴール前アタックでリスタート！");
         return;
@@ -800,7 +792,6 @@
       if (currentAttacker === 'P1') p1Tries++; else comTries++;
       document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
       
-      // 10トライ達成（勝利）チェック
       if (p1Tries >= WINNING_TRIES || comTries >= WINNING_TRIES) {
         showGameSetModal(p1Tries >= WINNING_TRIES ? 'P1' : 'COM');
         return true;
@@ -819,7 +810,6 @@
     
     setTimeout(() => {
       currentPhase = 1;
-      hasCleanBreak = false;
       updateDisplayImmediate();
       updateAvailableChannels();
 
@@ -838,13 +828,12 @@
     currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     
     ballY = (currentAttacker === 'COM') ? 9 : 1;
-    ballX = 2; // 中央から再開
+    ballX = 2;
 
     document.getElementById('log').innerText = reasonText;
 
     setTimeout(() => {
       currentPhase = 1;
-      hasCleanBreak = false;
       updateDisplayImmediate();
       updateAvailableChannels();
 
@@ -863,7 +852,6 @@
     ballX = 2;
     ballY = 5;
     currentPhase = 1;
-    hasCleanBreak = false;
     currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
     
     updateDisplayImmediate();
