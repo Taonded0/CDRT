@@ -628,7 +628,7 @@
     document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
-  /* 縦線（グリッド線）ごとに0.4秒間止まりながら動くアニメーション */
+  /* 縦線（グリッド線）ごとに0.3秒間止まりながら動くアニメーション */
   function animatePassingMovement(newX, newY, onComplete) {
     const token = document.getElementById('ball-token');
     const startX = ballX;
@@ -638,7 +638,7 @@
     if (diff === 0) {
       token.style.top = linePositionsY[newY] + '%';
       ballY = newY;
-      setTimeout(onComplete, 400);
+      setTimeout(onComplete, 300);
       return;
     }
 
@@ -720,11 +720,11 @@
     lockControls(true);
 
     if (tempSteps > 0) {
-      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲイン！`;
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲイン！前に出た！`;
     } else if (tempSteps < 0) {
-      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 後退！`;
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 後退させられる！`;
     } else {
-      document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲイン（平行移動）`;
+      document.getElementById('log').innerText = `【${selectedOption.label}】➔ 堅いディフェンス！`;
     }
 
     animatePassingMovement(targetX, targetY, () => {
@@ -743,7 +743,7 @@
       }
 
       if (isOffload) {
-        document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1OP！ オフロードパス発動！`;
+        document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1OP！ オフロードパス！`;
         setTimeout(() => {
           const opGain = Math.floor(Math.random() * 6);
           if (opGain === 0) {
@@ -773,7 +773,7 @@
   function nextPhase() {
     currentPhase++;
     if (currentPhase > maxPhases) {
-      switchTurn("フェイズ限界！ターンオーバー！");
+      switchTurn("攻撃終了！ターンオーバー！");
       return;
     }
 
@@ -797,7 +797,7 @@
         return true;
       }
 
-      document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} 得点！！`;
+      document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
       setTimeout(() => { resetKickOff(); }, 2000);
       return true;
     }
@@ -859,11 +859,11 @@
 
     if (currentAttacker === 'COM') {
       lockControls(true);
-      document.getElementById('log').innerText = `COMのボールでキックオフ！`;
+      document.getElementById('log').innerText = `COMのボールで再開！`;
       setTimeout(() => { executePlay(); }, 1200);
     } else {
       lockControls(false);
-      document.getElementById('log').innerText = `あなたのボールでキックオフ！`;
+      document.getElementById('log').innerText = `あなたのボールで再開！`;
     }
   }
 
@@ -887,7 +887,7 @@
           ${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
         </h2>
         <p style="font-size: 11px; margin-bottom: 15px;">
-          ${isP1Win ? '10トライ先取！見事CPUに勝利しました！' : 'COMに10トライを奪われました...'}
+          ${isP1Win ? '5トライ先取！見事CPUに勝利しました！' : 'COMに5トライを奪われました...'}
         </p>
         <button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
       </div>
@@ -917,7 +917,7 @@
 
       <div class="tutorial-section">
         <h4>【勝利条件】</h4>
-        <p>先に<strong>10トライ</strong>を取ったプレイヤーの勝利！</p>
+        <p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p>
       </div>
     `;
   }
