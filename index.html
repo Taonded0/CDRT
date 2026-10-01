@@ -384,7 +384,7 @@
 <div id="game-container">
   <div id="game-header">
     <div class="header-spacer"></div>
-    <div id="game-title">VS CPU: RUGBY TACTICS</div>
+    <div id="game-title">DICE RUGBY TACTICS</div>
     <button class="rule-btn" onclick="openTutorialModal()">?</button>
   </div>
 
@@ -426,7 +426,7 @@
       <div id="dice-text-box">-</div>
     </div>
 
-    <div id="log">10トライ先取で勝利！攻め込め！</div>
+    <div id="log">5トライ先取で勝利！</div>
   </div>
 </div>
 
@@ -447,14 +447,14 @@
 
       <div class="tutorial-section">
         <h4>【勝利条件】</h4>
-        <p>先に<strong>10トライ</strong>を取ったプレイヤーの勝利！</p>
+        <p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const WINNING_TRIES = 10; // 先取勝利条件
+  const WINNING_TRIES = 5; // 先取勝利条件
 
   const COLORS_META = [
     { name: '赤', key: 'red', hex: '#ff2a6d' },
@@ -475,7 +475,7 @@
 
     'Inside_Left': { red: {val: 1, label: '1'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: 1, label: '1'}, green: {val: 2, label: '2'}, orange: {val: -1, label: '-1'} },
     'Inside_Right':{ red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 2, label: '2'}, green: {val: 0, label: '0'}, orange: {val: '1OP', isOffload: true, label: '1OP'} },
-    'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 5, label: '5'}, purple: {val: -1, label: '-1'}, green: {val: 'TO', isTO: true, label: 'TO'}, orange: {val: 3, label: '3'} },
+    'Outside_Left':{ red: {val: 0, label: '0'}, blue: {val: '1OP', isOffload: true, label: '1OP'}, yellow: {val: 4, label: '4'}, purple: {val: -1, label: '-1'}, green: {val: -2, label: '-2'}, orange: {val: 3, label: '3'} },
     'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
   };
 
