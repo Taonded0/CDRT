@@ -37,36 +37,40 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 4px;
   }
 
-  .header-spacer { width: 18px; flex-shrink: 0; }
-
-  #game-title {
-    font-size: 11px;
-    color: #ffffff;
-    font-weight: 800;
-    letter-spacing: 1px;
-    margin: 0;
-    white-space: nowrap;
-    text-align: center;
-    flex-grow: 1;
-    text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
-  }
-
-  .rule-btn {
+  .header-btn {
     background: rgba(255, 255, 255, 0.05);
     color: #00f2fe;
-    font-size: 10px;
+    font-size: 9px;
     border-radius: 4px;
     border: 1px solid rgba(0, 242, 254, 0.4);
     cursor: pointer;
     font-weight: bold;
     flex-shrink: 0;
-    width: 20px;
-    height: 18px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 5px;
+  }
+
+  #bgm-toggle-btn {
+    width: auto;
+    font-size: 8.5px;
+  }
+
+  #game-title {
+    font-size: 10px;
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin: 0;
+    white-space: nowrap;
+    text-align: center;
+    flex-grow: 1;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
   }
 
   #game-container {
@@ -380,9 +384,9 @@
 
 <div id="game-container">
   <div id="game-header">
-    <div class="header-spacer"></div>
+    <button id="bgm-toggle-btn" class="header-btn" onclick="toggleBGM()">🎵 BGM: OFF</button>
     <div id="game-title">DICE RUGBY TACTICS</div>
-    <button class="rule-btn" onclick="openTutorialModal()">?</button>
+    <button class="header-btn" onclick="openTutorialModal()">?</button>
   </div>
 
   <div id="board-wrapper">
@@ -451,8 +455,11 @@
 </div>
 
 <script>
-  /* --- WEB AUDIO API 効果音ジェネレーター --- */
+  /* --- WEB AUDIO API 効果音 & BGM ジェネレーター --- */
   let audioCtx = null;
+  let bgmIsPlaying = false;
+  let bgmInterval = null;
+  let bgmStep = 0;
 
   function initAudio() {
     if (!audioCtx) {
@@ -464,26 +471,166 @@
     }
   }
 
+  /* --- 疾走感あふれるシンセ＆ドラム BGM エンジン (145 BPM) --- */
+  const BPM = 145;
+  const STEP_TIME = (60 / BPM) / 4; // 16分音符の秒数 (~0.103s)
+
+  // メロディ用スケール (Aマイナースケール: A, C, D, E, G)
+  const synthFreqs = [220.00, 261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33]; // A3~D5
+  const bassFreqs = [110.00, 130.81, 146.83, 164.81]; // A2~E3
+
+  // 16ステップのメロディパターン
+  const synthPattern = [0, 2, 3, 5, 4, 3, 2, 0, 5, 4, 3, 5, 2, 1, 0, 2];
+  const bassPattern  = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 0];
+
+  function playBGMStep() {
+    if (!bgmIsPlaying || !audioCtx) return;
+
+    const now = audioCtx.currentTime;
+    const step = bgmStep % 16;
+
+    // 1. Kick Drum (4つ打ち + 8拍目のシンコペーション)
+    if (step % 4 === 0 || step === 14) {
+      const kickOsc = audioCtx.createOscillator();
+      const kickGain = audioCtx.createGain();
+      kickOsc.type = 'sine';
+      kickOsc.frequency.setValueAtTime(140, now);
+      kickOsc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+
+      kickGain.gain.setValueAtTime(0.35, now);
+      kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      kickOsc.connect(kickGain);
+      kickGain.connect(audioCtx.destination);
+      kickOsc.start(now);
+      kickOsc.stop(now + 0.09);
+    }
+
+    // 2. Snare Drum (2拍目・4拍目)
+    if (step % 8 === 4) {
+      const snareLen = audioCtx.sampleRate * 0.08;
+      const buffer = audioCtx.createBuffer(1, snareLen, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < snareLen; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 1000;
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.2, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(now);
+    }
+
+    // 3. Hi-Hat (裏打ち 16分音符の刻み)
+    if (step % 2 === 1) {
+      const hatLen = audioCtx.sampleRate * 0.03;
+      const buffer = audioCtx.createBuffer(1, hatLen, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < hatLen; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 7000;
+
+      const noiseGain = audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(step % 4 === 2 ? 0.08 : 0.04, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(audioCtx.destination);
+      noise.start(now);
+    }
+
+    // 4. Synth Lead (ハイパーテクノ風リードシンセ)
+    if (step % 2 === 0) {
+      const synthOsc = audioCtx.createOscillator();
+      const synthGain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      synthOsc.type = 'sawtooth';
+      synthOsc.frequency.setValueAtTime(synthFreqs[synthPattern[step]], now);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1800, now);
+      filter.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+
+      synthGain.gain.setValueAtTime(0.06, now);
+      synthGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      synthOsc.connect(filter);
+      filter.connect(synthGain);
+      synthGain.connect(audioCtx.destination);
+
+      synthOsc.start(now);
+      synthOsc.stop(now + 0.1);
+    }
+
+    // 5. Driving Bass (低音ベースライン)
+    const bassOsc = audioCtx.createOscillator();
+    const bassGain = audioCtx.createGain();
+    bassOsc.type = 'square';
+    bassOsc.frequency.setValueAtTime(bassFreqs[bassPattern[step]], now);
+
+    bassGain.gain.setValueAtTime(0.04, now);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    bassOsc.connect(bassGain);
+    bassGain.connect(audioCtx.destination);
+    bassOsc.start(now);
+    bassOsc.stop(now + 0.08);
+
+    bgmStep++;
+  }
+
+  function toggleBGM() {
+    initAudio();
+    const btn = document.getElementById('bgm-toggle-btn');
+    if (bgmIsPlaying) {
+      bgmIsPlaying = false;
+      clearInterval(bgmInterval);
+      btn.innerText = '🎵 BGM: OFF';
+      btn.style.color = '#00f2fe';
+    } else {
+      bgmIsPlaying = true;
+      bgmStep = 0;
+      bgmInterval = setInterval(playBGMStep, STEP_TIME * 1000);
+      btn.innerText = '🎵 BGM: ON';
+      btn.style.color = '#ff2a6d';
+    }
+  }
+
+  /* --- 効果音 (SE) --- */
   // 1. パス音（横移動時の風切りスウッシュ音）
   function playPassSound() {
     initAudio();
-    const bufferSize = audioCtx.sampleRate * 0.15; // 0.15秒の音
+    const bufferSize = audioCtx.sampleRate * 0.15;
     const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
     const output = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
-      output[i] = Math.random() * 2 - 1; // ノイズ生成
+      output[i] = Math.random() * 2 - 1;
     }
 
     const whiteNoise = audioCtx.createBufferSource();
     whiteNoise.buffer = buffer;
 
-    // バンドパスフィルターで風を切るような音域を作る
     const filter = audioCtx.createBiquadFilter();
     filter.type = 'bandpass';
     filter.Q.value = 3.0;
 
     const now = audioCtx.currentTime;
-    // 周波数を急激にスウィープ（800Hz -> 2400Hz -> 400Hz）させて「シュッ」感を演出
     filter.frequency.setValueAtTime(600, now);
     filter.frequency.exponentialRampToValueAtTime(2400, now + 0.07);
     filter.frequency.exponentialRampToValueAtTime(300, now + 0.15);
@@ -529,7 +676,7 @@
   function playTrySound() {
     initAudio();
     const now = audioCtx.currentTime;
-    const notes = [261.63, 329.63, 392.00, 523.25]; // C E G C
+    const notes = [261.63, 329.63, 392.00, 523.25];
     notes.forEach((freq, idx) => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -743,7 +890,6 @@
     document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
   }
 
-  /* 縦線移動時に「パス音（シュッ）」を鳴らすアニメーション */
   function animatePassingMovement(newX, newY, tempSteps, onComplete) {
     const token = document.getElementById('ball-token');
     const startX = ballX;
@@ -768,7 +914,6 @@
         ballX = currentX;
         count++;
 
-        // 横移動時にパス効果音を再生
         playPassSound();
 
         setTimeout(() => {
@@ -798,7 +943,12 @@
   }
 
   function executePlay() {
-    initAudio(); // ボタンクリックなどのアクション時にAudioContextをアクティブ化
+    initAudio(); 
+
+    // 初回プレイ時に自動的にBGMをオンにする
+    if (!bgmIsPlaying) {
+      toggleBGM();
+    }
 
     let selectedOption;
     if (currentAttacker === 'P1') {
@@ -915,7 +1065,7 @@
 
   function checkTryCondition() {
     if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
-      playTrySound(); // トライサウンドを再生
+      playTrySound();
       if (currentAttacker === 'P1') p1Tries++; else comTries++;
       document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
       
