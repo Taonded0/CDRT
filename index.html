@@ -595,12 +595,22 @@
     bgmStep++;
   }
 
+  function stopBGM() {
+    bgmIsPlaying = false;
+    if (bgmInterval) {
+      clearInterval(bgmInterval);
+      bgmInterval = null;
+    }
+    if (audioCtx && audioCtx.state === 'running') {
+      audioCtx.suspend();
+    }
+  }
+
   function toggleBGM() {
     initAudio();
     const btn = document.getElementById('bgm-toggle-btn');
     if (bgmIsPlaying) {
-      bgmIsPlaying = false;
-      clearInterval(bgmInterval);
+      stopBGM();
       btn.innerText = '🎵 BGM: OFF';
       btn.style.color = '#00f2fe';
     } else {
@@ -611,6 +621,10 @@
       btn.style.color = '#ff2a6d';
     }
   }
+
+  // 画面移動・タブクローズ時に完全に音声を停止
+  window.addEventListener('pagehide', stopBGM);
+  window.addEventListener('beforeunload', stopBGM);
 
   /* --- 効果音 (SE) --- */
   // 1. パス音（横移動時の風切りスウッシュ音）
