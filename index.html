@@ -1677,15 +1677,15 @@ lockControls(true);
 
 if (tempSteps > 0) {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲインライン突破！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} 　ゲインライン突破！`;
 
 } else if (tempSteps < 0) {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 激しいディフェンス！後退！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 　激しいディフェンス！後退！`;
 
 } else {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 強固なディフェンス！ゲインできず`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 　強固なディフェンス！ゲインできず`;
 
 }
 
@@ -1727,7 +1727,7 @@ return;
 
 if (isOffload) {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1OP！ オフロードパス！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1 ゲインライン突破、オフロードパスだ！`;
 
 setTimeout(() => {
 
@@ -1737,7 +1737,7 @@ if (opGain === 0) {
 
 playTurnoverSound();
 
-switchTurn("OFFLOAD FAILED! ノックフォワード...");
+switchTurn("Knock forward オフロードパスが繋がらず...");
 
 } else {
 
@@ -1793,7 +1793,7 @@ if (currentPhase > maxPhases) {
 
 playTurnoverSound();
 
-switchTurn("アタックフェイズリミット！攻守交代！");
+switchTurn("アタックフェイズリミット！");
 
 return;
 
