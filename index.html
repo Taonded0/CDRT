@@ -1677,15 +1677,15 @@ lockControls(true);
 
 if (tempSteps > 0) {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲイン！ディフェンス突破！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} ゲインライン突破！`;
 
 } else if (tempSteps < 0) {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 後退！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 激しいディフェンス！後退！`;
 
 } else {
 
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ディフェンスが堅い！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 強固なディフェンス！ゲインできず`;
 
 }
 
@@ -1717,7 +1717,7 @@ if (isTO) {
 
 playTurnoverSound();
 
-switchTurn("TURNOVER! ボールを奪われました");
+switchTurn("TURNOVER! スティールされた！");
 
 return;
 
@@ -1737,7 +1737,7 @@ if (opGain === 0) {
 
 playTurnoverSound();
 
-switchTurn("OFFLOAD FAILED! ハンドリングエラー...");
+switchTurn("OFFLOAD FAILED! ノックフォワード...");
 
 } else {
 
@@ -1751,7 +1751,7 @@ if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
 playGainSound(true);
 
-document.getElementById('log').innerText = `OFFLOAD SUCCESS! ＋${opGain} GAIN!!`;
+document.getElementById('log').innerText = `オフロードパスが繋がる! ＋${opGain} さらにGAIN!!`;
 
 ballY = opTargetY;
 
@@ -1793,7 +1793,7 @@ if (currentPhase > maxPhases) {
 
 playTurnoverSound();
 
-switchTurn("アタック終了！ターンオーバー！");
+switchTurn("アタックフェイズリミット！攻守交代！");
 
 return;
 
@@ -1932,7 +1932,7 @@ setTimeout(() => { executePlay(); }, 1200);
 
 lockControls(false);
 
-document.getElementById('log').innerText = `相手ゴール直前からの攻撃チャンス！`;
+document.getElementById('log').innerText = `相手ゴール直前からのトライチャンス！`;
 
 }
 
@@ -1963,7 +1963,7 @@ if (currentAttacker === 'COM') {
 
 lockControls(true);
 
-document.getElementById('log').innerText = `COMのボールで再開！`;
+document.getElementById('log').innerText = `COMのアタックで再開！`;
 
 setTimeout(() => { executePlay(); }, 1200);
 
@@ -1971,7 +1971,7 @@ setTimeout(() => { executePlay(); }, 1200);
 
 lockControls(false);
 
-document.getElementById('log').innerText = `あなたのボールで再開！`;
+document.getElementById('log').innerText = `あなたのアタックで再開！`;
 
 }
 
@@ -2018,7 +2018,7 @@ ${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
 
 <p style="font-size: 11px; margin-bottom: 15px;">
 
-${isP1Win ? '5トライ先取！見事CPUに勝利しました！' : 'COMに5トライを奪われました...'}
+${isP1Win ? '5トライ先取！見事CPUを撃破！' : 'COMに5トライを奪われました...'}
 
 </p>
 
