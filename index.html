@@ -848,7 +848,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 強固なディフェンス！ゲインできず`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 固いディフェンス！前進できず`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -869,7 +869,7 @@ return;
 }
 
 if (isOffload) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパスだ！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
 setTimeout(() => {
 const opGain = Math.floor(Math.random() * 6);
 if (opGain === 0) {
