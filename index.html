@@ -874,7 +874,7 @@ setTimeout(() => {
 const opGain = Math.floor(Math.random() * 6);
 if (opGain === 0) {
 playTurnoverSound();
-switchTurn("Knock forward オフロードパスが繋がらず...");
+switchTurn("Knock forward ハンドリングエラー...");
 } else {
 let opTargetY = (currentAttacker === 'P1') ? ballY - opGain : ballY + opGain;
 if (opTargetY < 0) opTargetY = 0;
