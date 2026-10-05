@@ -844,11 +844,11 @@ if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 lockControls(true);
 
 if (tempSteps > 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps} 　ゲインライン突破！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！ゲインライン突破！`;
 } else if (tempSteps < 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)} 　激しいディフェンス！後退！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 　強固なディフェンス！ゲインできず`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 強固なディフェンス！ゲインできず`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -869,7 +869,7 @@ return;
 }
 
 if (isOffload) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1 ゲインライン突破、オフロードパスだ！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパスだ！`;
 setTimeout(() => {
 const opGain = Math.floor(Math.random() * 6);
 if (opGain === 0) {
@@ -881,7 +881,7 @@ if (opTargetY < 0) opTargetY = 0;
 if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
 playGainSound(true);
-document.getElementById('log').innerText = `オフロードパスが繋がる! ＋${opGain} さらにGAIN!!`;
+document.getElementById('log').innerText = `オフロードが繋がる! ＋${opGain} GAIN!!`;
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
