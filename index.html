@@ -848,7 +848,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 固いディフェンス！前進できず`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ディフェンスか固い！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
