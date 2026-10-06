@@ -81,7 +81,7 @@ gap: 4px;
 #board-wrapper {
 position: relative;
 width: 285px;
-height: 220px;
+height: 240px;
 background-color: #0c1421;
 background-image:
 linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px),
@@ -101,7 +101,7 @@ overflow: hidden;
 /* 上下インゴール */
 .ingoal-zone {
 width: 100%;
-height: 20px;
+height: 18px;
 position: relative;
 box-sizing: border-box;
 flex-shrink: 0;
@@ -470,23 +470,21 @@ audioCtx.resume();
 // 1. パス音（横移動時の風切りスウッシュ音）
 function playPassSound() {
 initAudio();
-const bufferSize = audioCtx.sampleRate * 0.15; // 0.15秒の音
+const bufferSize = audioCtx.sampleRate * 0.15;
 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
 const output = buffer.getChannelData(0);
 for (let i = 0; i < bufferSize; i++) {
-output[i] = Math.random() * 2 - 1; // ノイズ生成
+output[i] = Math.random() * 2 - 1;
 }
 
 const whiteNoise = audioCtx.createBufferSource();
 whiteNoise.buffer = buffer;
 
-// バンドパスフィルターで風を切るような音域を作る
 const filter = audioCtx.createBiquadFilter();
 filter.type = 'bandpass';
 filter.Q.value = 3.0;
 
 const now = audioCtx.currentTime;
-// 周波数を急激にスウィープ（800Hz -> 2400Hz -> 400Hz）させて「シュッ」感を演出
 filter.frequency.setValueAtTime(600, now);
 filter.frequency.exponentialRampToValueAtTime(2400, now + 0.07);
 filter.frequency.exponentialRampToValueAtTime(300, now + 0.15);
@@ -532,7 +530,7 @@ osc.stop(now + 0.2);
 function playTrySound() {
 initAudio();
 const now = audioCtx.currentTime;
-const notes = [261.63, 329.63, 392.00, 523.25]; // C E G C
+const notes = [261.63, 329.63, 392.00, 523.25];
 notes.forEach((freq, idx) => {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
@@ -597,10 +595,12 @@ const PASS_TABLE = {
 'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
 };
 
-const TOTAL_LINES = 11;
+// 13ライン化に伴う定数設定
+const TOTAL_LINES = 13;
+const CENTER_LINE_INDEX = Math.floor(TOTAL_LINES / 2); // インデックス 6 (7本目のライン)
 let linePositionsY = [];
 let ballX = 2;
-let ballY = 5;
+let ballY = CENTER_LINE_INDEX;
 let currentAttacker = 'P1';
 let currentPhase = 1;
 let maxPhases = 5;
@@ -629,7 +629,7 @@ container.appendChild(token);
 for (let i = 0; i < TOTAL_LINES; i++) {
 linePositionsY[i] = (i / (TOTAL_LINES - 1)) * 100;
 const hLine = document.createElement('div');
-hLine.className = (i === 5) ? 'h-line center-line' : 'h-line';
+hLine.className = (i === CENTER_LINE_INDEX) ? 'h-line center-line' : 'h-line';
 hLine.style.top = linePositionsY[i] + '%';
 container.appendChild(hLine);
 }
@@ -746,7 +746,6 @@ document.getElementById('phase-num').innerText = currentPhase + '/5';
 document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
 }
 
-/* 縦線移動時に「パス音（シュッ）」を鳴らすアニメーション */
 function animatePassingMovement(newX, newY, tempSteps, onComplete) {
 const token = document.getElementById('ball-token');
 const startX = ballX;
@@ -771,7 +770,6 @@ token.style.left = X_POS[currentX] + '%';
 ballX = currentX;
 count++;
 
-// 横移動時にパス効果音を再生
 playPassSound();
 
 setTimeout(() => {
@@ -789,7 +787,7 @@ moveOneStep();
 }
 
 function selectCpuOption() {
-const isCloseToGoal = (ballY >= 8);
+const isCloseToGoal = (ballY >= TOTAL_LINES - 3);
 
 if (isCloseToGoal && Math.random() < 0.6) {
 const aggressiveOpts = currentAvailableOptions.filter(o => o.key.includes('Edge') || o.key.includes('Outside') || o.key.includes('Short'));
@@ -801,7 +799,7 @@ return currentAvailableOptions[Math.floor(Math.random() * currentAvailableOption
 }
 
 function executePlay() {
-initAudio(); // ボタンクリックなどのアクション時にAudioContextをアクティブ化
+initAudio();
 
 let selectedOption;
 if (currentAttacker === 'P1') {
@@ -848,7 +846,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ディフェンスか固い！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ディフェンスが固い！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -918,7 +916,7 @@ setTimeout(() => { executePlay(); }, 1200);
 
 function checkTryCondition() {
 if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
-playTrySound(); // トライサウンドを再生
+playTrySound();
 if (currentAttacker === 'P1') p1Tries++; else comTries++;
 document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
 
@@ -957,7 +955,8 @@ document.getElementById('log').innerText = `あなたの攻撃ターン！`;
 function switchTurnToGoalLine(reasonText) {
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
 
-ballY = (currentAttacker === 'COM') ? 9 : 1;
+// 13ライン時のゴール前リスタート位置調整（COMならライン11、P1ならライン1）
+ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 2 : 1;
 ballX = 2;
 
 document.getElementById('log').innerText = reasonText;
@@ -980,7 +979,7 @@ document.getElementById('log').innerText = `相手ゴール直前からのトラ
 
 function resetKickOff() {
 ballX = 2;
-ballY = 5;
+ballY = CENTER_LINE_INDEX;
 currentPhase = 1;
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
 
