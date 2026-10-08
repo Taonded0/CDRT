@@ -446,6 +446,15 @@ font-size: 12px;
 </div>
 
 <div class="tutorial-section">
+<h4>【1OP（オフロードパス）の追加判定】</h4>
+<p>1OP発生時は以下の6通りから1/6の確率で抽選されます：<br>
+・<strong>1/6</strong>: ハンドリングエラー（Knock forwardでTO）<br>
+・<strong>2/6</strong>: ＋2マス<br>
+・<strong>2/6</strong>: ＋3マス<br>
+・<strong>1/6</strong>: ＋4マス</p>
+</div>
+
+<div class="tutorial-section">
 <h4>【勝利条件】</h4>
 <p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p>
 </div>
@@ -454,7 +463,6 @@ font-size: 12px;
 </div>
 
 <script>
-/* --- WEB AUDIO API 効果音ジェネレーター --- */
 let audioCtx = null;
 
 function initAudio() {
@@ -570,7 +578,6 @@ osc.start(now);
 osc.stop(now + 0.3);
 }
 
-/* --- ゲームロジック --- */
 const WINNING_TRIES = 5;
 
 const COLORS_META = [
@@ -869,17 +876,23 @@ return;
 if (isOffload) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
 setTimeout(() => {
-const opGain = Math.floor(Math.random() * 6);
-if (opGain === 0) {
+// オフロードパス(1OP)が発生した際の追加ダイス判定（6通り）
+// 1(1/6): ハンドリングエラー, 2,3(2/6): +2, 4,5(2/6): +3, 6(1/6): +4
+const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
+const opRollIndex = Math.floor(Math.random() * 6);
+const opResult = offloadOutcomes[opRollIndex];
+
+if (opResult === 'ERROR') {
 playTurnoverSound();
 switchTurn("Knock forward ハンドリングエラー...");
 } else {
+const opGain = opResult;
 let opTargetY = (currentAttacker === 'P1') ? ballY - opGain : ballY + opGain;
 if (opTargetY < 0) opTargetY = 0;
 if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
 playGainSound(true);
-document.getElementById('log').innerText = `オフロードが繋がる! ＋${opGain} GAIN!!`;
+document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
@@ -955,7 +968,6 @@ document.getElementById('log').innerText = `あなたの攻撃ターン！`;
 function switchTurnToGoalLine(reasonText) {
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
 
-// 13ライン時のゴール前リスタート位置調整（COMならライン11、P1ならライン1）
 ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 2 : 1;
 ballX = 2;
 
@@ -1052,6 +1064,15 @@ document.getElementById('modal-body').innerHTML = `
 
 ※「今どのレーンに駒がいるか」によって、使えるアタックチャンネルや出目が変化します！<br>
 </p>
+</div>
+
+<div class="tutorial-section">
+<h4>【1OP（オフロードパス）の追加判定】</h4>
+<p>1OP発生時は以下の6通りから1/6の確率で抽選されます：<br>
+・<strong>1/6</strong>: ハンドリングエラー（Knock forwardでTO）<br>
+・<strong>2/6</strong>: ＋2マス<br>
+・<strong>2/6</strong>: ＋3マス<br>
+・<strong>1/6</strong>: ＋4マス</p>
 </div>
 
 <div class="tutorial-section">
