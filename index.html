@@ -442,7 +442,7 @@ font-size: 12px;
 <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
 ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
 ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代！<br>
-・<strong>自陣ゴールまで押し戻された場合</strong>：ゴール直前のラインから相手のアタックでリスタート！</p>
+・<strong>自陣ゴールまで押し戻された場合</strong>：ゴールラインから2マス離れたラインから相手のアタックでリスタート！</p>
 </div>
 
 <div class="tutorial-section">
@@ -863,7 +863,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣ゴールに押し戻された！相手のゴール前アタックでリスタート！");
+switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタックでリスタート！");
 return;
 }
 
@@ -968,7 +968,10 @@ document.getElementById('log').innerText = `あなたの攻撃ターン！`;
 function switchTurnToGoalLine(reasonText) {
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
 
-ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 2 : 1;
+// ゴールラインから2マス離れたラインに設置
+// COM攻撃時（画面下へ進む）: ゴールライン(TOTAL_LINES - 1)より2マス手前のライン(TOTAL_LINES - 3)
+// P1攻撃時（画面上へ進む）: ゴールライン(0)より2マス手前のライン(2)
+ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 3 : 2;
 ballX = 2;
 
 document.getElementById('log').innerText = reasonText;
@@ -980,11 +983,11 @@ updateAvailableChannels();
 
 if (currentAttacker === 'COM') {
 lockControls(true);
-document.getElementById('log').innerText = `COMのゴール前アタック！ピンチ！`;
+document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
 setTimeout(() => { executePlay(); }, 1200);
 } else {
 lockControls(false);
-document.getElementById('log').innerText = `相手ゴール直前からのトライチャンス！`;
+document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
 }
 }, 2000);
 }
@@ -1053,14 +1056,14 @@ document.getElementById('modal-body').innerHTML = `
 <p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
 ・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
 ・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代！<br>
-・<strong>自陣ゴールまで押し戻された場合</strong>：ゴール直前のラインから相手のアタックでリスタート！<br>
+・<strong>自陣ゴールまで押し戻された場合</strong>：ゴールラインから2マス離れたラインから相手のアタックでリスタート！<br>
 ・このゲームでは、画面のレーン（縦列）を以下の略称で呼びます。<br>
 
-　CL（セントラルレーン）: 画面中央のレーン<br>
+ CL（セントラルレーン）: 画面中央のレーン<br>
 
-　HL（ハーフレーン）: CLの両隣（中間レーン）<br>
+ HL（ハーフレーン）: CLの両隣（中間レーン）<br>
 
-　EL（エッジレーン）: 一番外側（端のレーン）<br>
+ EL（エッジレーン）: 一番外側（端のレーン）<br>
 
 ※現在のボールの位置により、使えるアタックチャンネルや出目が変化します！<br>
 </p>
