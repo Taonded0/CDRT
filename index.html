@@ -853,7 +853,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ディフェンスが固い！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -863,7 +863,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣ゴールまで押し戻された！相手のゴール前アタックでリスタート！");
+switchTurnToGoalLine("自陣ゴールに押し戻された！相手のゴール前アタックでリスタート！");
 return;
 }
 
@@ -1062,7 +1062,7 @@ document.getElementById('modal-body').innerHTML = `
 
 　EL（エッジレーン）: 一番外側（端のレーン）<br>
 
-※「今どのレーンに駒がいるか」によって、使えるアタックチャンネルや出目が変化します！<br>
+※現在のボールの位置により、使えるアタックチャンネルや出目が変化します！<br>
 </p>
 </div>
 
