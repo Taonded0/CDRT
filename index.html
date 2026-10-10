@@ -267,15 +267,24 @@ margin: 3px 0;
 box-sizing: border-box;
 }
 
+/* 左側：色 ＋ ゲイン数字を表示するボックス */
 #dice-color-box {
-width: 22px;
+width: 65px;
 height: 20px;
 border-radius: 3px;
-border: 1px solid rgba(255, 255, 255, 0.2);
+border: 1px solid rgba(255, 255, 255, 0.3);
 background-color: #1e293b;
 flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 800;
+font-size: 10px;
+color: #000000;
+text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
+/* 右側：アクション説明を表示する細長いマス */
 #dice-text-box {
 flex-grow: 1;
 height: 20px;
@@ -283,12 +292,15 @@ border-radius: 3px;
 border: 1px solid rgba(255, 255, 255, 0.1);
 display: flex;
 align-items: center;
-justify-content: center;
+padding: 0 6px;
 font-weight: 700;
-font-size: 11px;
+font-size: 10px;
 background-color: rgba(10, 14, 23, 0.9);
 color: #ffffff;
 letter-spacing: 0.5px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
 
 #log {
@@ -422,7 +434,9 @@ font-size: 12px;
 </div>
 
 <div id="dice-result-container">
-<div id="dice-color-box"></div>
+<!-- 左側：色 ＋ ゲイン数字を表示 -->
+<div id="dice-color-box">-</div>
+<!-- 右側：アクション説明を表示 -->
 <div id="dice-text-box">-</div>
 </div>
 
@@ -602,9 +616,8 @@ const PASS_TABLE = {
 'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} }
 };
 
-// 13ライン化に伴う定数設定
 const TOTAL_LINES = 13;
-const CENTER_LINE_INDEX = Math.floor(TOTAL_LINES / 2); // インデックス 6 (7本目のライン)
+const CENTER_LINE_INDEX = Math.floor(TOTAL_LINES / 2);
 let linePositionsY = [];
 let ballX = 2;
 let ballY = CENTER_LINE_INDEX;
@@ -819,9 +832,12 @@ const diceIndex = Math.floor(Math.random() * 6);
 const rolledMeta = COLORS_META[diceIndex];
 const cellData = PASS_TABLE[selectedOption.key][rolledMeta.key];
 
-document.getElementById('dice-color-box').style.backgroundColor = rolledMeta.hex;
-const textBox = document.getElementById('dice-text-box');
-textBox.innerText = cellData.isOffload ? '1OP (OFFLOAD)' : cellData.label;
+// 1. 左側のボックスに「色名」と「数字（ゲイン結果）」を表示＆背景色設定
+const colorBox = document.getElementById('dice-color-box');
+colorBox.style.backgroundColor = rolledMeta.hex;
+colorBox.innerText = `${rolledMeta.name}:${cellData.label}`;
+// 背景色に合せて文字色を見やすく調整（黄系は黒文字、ほかは白文字など）
+colorBox.style.color = (rolledMeta.key === 'yellow') ? '#000000' : '#ffffff';
 
 const isTO = (cellData.isTO || cellData.label === 'TO');
 const isOffload = cellData.isOffload;
@@ -848,13 +864,18 @@ if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 
 lockControls(true);
 
+// 2. 右側の長細いボックスにアクション説明を表示
+const textBox = document.getElementById('dice-text-box');
+let actionDesc = "";
 if (tempSteps > 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！ゲインライン突破！`;
+actionDesc = `【${selectedOption.label}】${tempSteps}前進！ゲインライン突破！`;
 } else if (tempSteps < 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
+actionDesc = `【${selectedOption.label}】${Math.abs(tempSteps)}後退！激しいディフェンス！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
+actionDesc = `【${selectedOption.label}】0 ゲインできない！`;
 }
+textBox.innerText = actionDesc;
+document.getElementById('log').innerText = actionDesc;
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
 updateAvailableChannels();
@@ -874,17 +895,20 @@ return;
 }
 
 if (isOffload) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
+let opDesc = `【${selectedOption.label}】1前進、さらにオフロードパス！`;
+textBox.innerText = opDesc;
+document.getElementById('log').innerText = opDesc;
+
 setTimeout(() => {
-// オフロードパス(1OP)が発生した際の追加ダイス判定（6通り）
-// 1(1/6): ハンドリングエラー, 2,3(2/6): +2, 4,5(2/6): +3, 6(1/6): +4
 const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
 const opRollIndex = Math.floor(Math.random() * 6);
 const opResult = offloadOutcomes[opRollIndex];
 
 if (opResult === 'ERROR') {
 playTurnoverSound();
-switchTurn("Knock forward ハンドリングエラー...");
+let errDesc = "Knock forward ハンドリングエラー...";
+textBox.innerText = errDesc;
+switchTurn(errDesc);
 } else {
 const opGain = opResult;
 let opTargetY = (currentAttacker === 'P1') ? ballY - opGain : ballY + opGain;
@@ -892,7 +916,10 @@ if (opTargetY < 0) opTargetY = 0;
 if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
 playGainSound(true);
-document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
+let opSuccessDesc = `オフロード成功！ ＋${opGain} GAIN!!`;
+textBox.innerText = opSuccessDesc;
+document.getElementById('log').innerText = opSuccessDesc;
+
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
@@ -938,7 +965,9 @@ showGameSetModal(p1Tries >= WINNING_TRIES ? 'P1' : 'COM');
 return true;
 }
 
-document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
+let tryDesc = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
+document.getElementById('dice-text-box').innerText = tryDesc;
+document.getElementById('log').innerText = tryDesc;
 setTimeout(() => { resetKickOff(); }, 2000);
 return true;
 }
@@ -947,6 +976,7 @@ return false;
 
 function switchTurn(reasonText) {
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+document.getElementById('dice-text-box').innerText = `${reasonText} 攻守交代！`;
 document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
 
 setTimeout(() => {
@@ -968,12 +998,10 @@ document.getElementById('log').innerText = `あなたの攻撃ターン！`;
 function switchTurnToGoalLine(reasonText) {
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
 
-// ゴールラインから2マス離れたラインに設置
-// COM攻撃時（画面下へ進む）: ゴールライン(TOTAL_LINES - 1)より2マス手前のライン(TOTAL_LINES - 3)
-// P1攻撃時（画面上へ進む）: ゴールライン(0)より2マス手前のライン(2)
 ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 3 : 2;
 ballX = 2;
 
+document.getElementById('dice-text-box').innerText = reasonText;
 document.getElementById('log').innerText = reasonText;
 
 setTimeout(() => {
