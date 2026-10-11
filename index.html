@@ -1000,4 +1000,287 @@ switchTurn("Knock forward ハンドリングエラー...");
 const opGain = opResult;
 let opTargetY = ballY + opGain;
 if (opTargetY < 0) opTargetY = 0;
-if
+if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
+
+playGainSound(true);
+document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
+ballY = opTargetY;
+document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
+
+setTimeout(() => {
+if (checkTryCondition()) return;
+nextPhase();
+}, 600);
+}
+}, 600);
+return;
+}
+
+nextPhase();
+}
+
+function processPlayResult(playData) {
+pendingPlayData = null;
+isJackalWindowOpen = false;
+updateDisplayImmediate();
+
+const { selectedOption, cellData, tempSteps, isTO, isOffload } = playData;
+
+let targetY = ballY - tempSteps;
+let targetX = selectedOption.x;
+
+let isPushedBackToOwnGoal = (targetY >= TOTAL_LINES - 1);
+
+if (targetY < 0) targetY = 0;
+if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
+
+lockControls(true);
+
+if (tempSteps > 0) {
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！ゲインライン突破！`;
+} else if (tempSteps < 0) {
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
+} else {
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
+}
+
+animatePassingMovement(targetX, targetY, tempSteps, () => {
+updateAvailableChannels();
+
+if (checkTryCondition()) return;
+
+if (isPushedBackToOwnGoal) {
+playTurnoverSound();
+switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタックでリスタート！");
+return;
+}
+
+if (isTO) {
+playTurnoverSound();
+switchTurn("TURNOVER! スティールされた！");
+return;
+}
+
+if (isOffload) {
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
+setTimeout(() => {
+const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
+const opRollIndex = Math.floor(Math.random() * 6);
+const opResult = offloadOutcomes[opRollIndex];
+
+if (opResult === 'ERROR') {
+playTurnoverSound();
+switchTurn("Knock forward ハンドリングエラー...");
+} else {
+const opGain = opResult;
+let opTargetY = ballY - opGain;
+if (opTargetY < 0) opTargetY = 0;
+if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
+
+playGainSound(true);
+document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
+ballY = opTargetY;
+document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
+
+setTimeout(() => {
+if (checkTryCondition()) return;
+nextPhase();
+}, 600);
+}
+}, 600);
+return;
+}
+
+nextPhase();
+});
+}
+
+function nextPhase() {
+currentPhase++;
+if (currentPhase > maxPhases) {
+playTurnoverSound();
+switchTurn("アタックフェイズリミット！");
+return;
+}
+
+document.getElementById('phase-num').innerText = currentPhase + '/5';
+
+if (currentAttacker === 'P1') {
+lockControls(false);
+} else {
+document.getElementById('log').innerText = `COMの攻撃ターン...思考中`;
+setTimeout(() => { executePlay(); }, 1200);
+}
+}
+
+function checkTryCondition() {
+if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
+playTrySound();
+if (currentAttacker === 'P1') p1Tries++; else comTries++;
+document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
+
+if (p1Tries >= WINNING_TRIES || comTries >= WINNING_TRIES) {
+showGameSetModal(p1Tries >= WINNING_TRIES ? 'P1' : 'COM');
+return true;
+}
+
+document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
+setTimeout(() => { resetKickOff(); }, 2000);
+return true;
+}
+return false;
+}
+
+function switchTurn(reasonText) {
+currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+pendingPlayData = null;
+isJackalWindowOpen = false;
+document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
+
+setTimeout(() => {
+currentPhase = 1;
+updateDisplayImmediate();
+updateAvailableChannels();
+
+if (currentAttacker === 'COM') {
+lockControls(true);
+document.getElementById('log').innerText = `COMの攻撃ターン...`;
+setTimeout(() => { executePlay(); }, 1200);
+} else {
+lockControls(false);
+document.getElementById('log').innerText = `あなたの攻撃ターン！`;
+}
+}, 1800);
+}
+
+function switchTurnToGoalLine(reasonText) {
+currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+pendingPlayData = null;
+isJackalWindowOpen = false;
+ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 3 : 2;
+ballX = 2;
+
+document.getElementById('log').innerText = reasonText;
+
+setTimeout(() => {
+currentPhase = 1;
+updateDisplayImmediate();
+updateAvailableChannels();
+
+if (currentAttacker === 'COM') {
+lockControls(true);
+document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
+setTimeout(() => { executePlay(); }, 1200);
+} else {
+lockControls(false);
+document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
+}
+}, 2000);
+}
+
+function resetKickOff() {
+ballX = 2;
+ballY = CENTER_LINE_INDEX;
+currentPhase = 1;
+currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+pendingPlayData = null;
+isJackalWindowOpen = false;
+
+updateDisplayImmediate();
+updateAvailableChannels();
+
+if (currentAttacker === 'COM') {
+lockControls(true);
+document.getElementById('log').innerText = `COMのアタックで再開！`;
+setTimeout(() => { executePlay(); }, 1200);
+} else {
+lockControls(false);
+document.getElementById('log').innerText = `あなたのアタックで再開！`;
+}
+}
+
+function lockControls(isLock) {
+document.getElementById('roll-btn').disabled = isLock;
+document.getElementById('channel-select').disabled = isLock;
+}
+
+function showGameSetModal(winner) {
+lockControls(true);
+isJackalWindowOpen = false;
+document.getElementById('jackal-btn').style.display = 'none';
+const modal = document.getElementById('modal-overlay');
+const title = document.getElementById('modal-title');
+const body = document.getElementById('modal-body');
+
+title.innerText = "GAME SET!!";
+const isP1Win = (winner === 'P1');
+
+body.innerHTML = `
+<div style="text-align: center; padding: 10px;">
+<h2 style="color: ${isP1Win ? '#00f2fe' : '#ff2a6d'}; margin: 0 0 10px 0;">
+${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
+</h2>
+<p style="font-size: 11px; margin-bottom: 15px;">
+${isP1Win ? '5トライ先取！見事CPUを撃破！' : 'COMに5トライを奪われました...'}
+</p>
+<button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
+</div>
+`;
+modal.style.display = 'flex';
+}
+
+function restartGame() {
+p1Tries = 0;
+comTries = 0;
+p1JackalCount = 3;
+currentAttacker = 'P1';
+pendingPlayData = null;
+isJackalWindowOpen = false;
+document.getElementById('modal-overlay').style.display = 'none';
+restoreTutorialModalText();
+resetKickOff();
+}
+
+function restoreTutorialModalText() {
+document.getElementById('modal-title').innerText = "DICE RUGBY TACTICS";
+document.getElementById('modal-body').innerHTML = `
+<div class="tutorial-section">
+<h4>【対戦ルール】</h4>
+<p>・<strong>YOU (P1)</strong>: 画面上部に向かって攻撃！<br>
+・<strong>COM (CPU)</strong>: 画面下部に向かって攻撃！<br>
+・5フェイズ経過、ハンドリングエラー、自陣ゴールまで押し戻されると攻守交代！</p>
+</div>
+
+<div class="tutorial-section">
+<h4>【ジャッカルシステム（守備時限定）】</h4>
+<p>・権利は試合を通じて<strong>3回</strong>。<br>
+・相手が動いた後に発動可能。<br>
+・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進時は1/6。<br>
+・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
+・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
+</div>
+
+<div class="tutorial-section">
+<h4>【勝利条件】</h4>
+<p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p>
+</div>
+`;
+}
+
+function openTutorialModal() {
+restoreTutorialModalText();
+document.getElementById('modal-overlay').style.display = 'flex';
+}
+
+function closeTutorialModal(event) {
+if (!event || event.target.id === 'modal-overlay' || event.target.classList.contains('close-btn')) {
+document.getElementById('modal-overlay').style.display = 'none';
+}
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+setupBoard();
+});
+</script>
+</body>
+</html>
