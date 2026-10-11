@@ -473,10 +473,10 @@ font-size: 12px;
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（守備時限定）】</h4>
 <p>・権利は試合を通じて<strong>3回</strong>。<br>
-・相手が動いた後に発動可能。<br>
-・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進（＋）の時は1/6。<br>
-・<strong>成功</strong>：権利は減らずに、ボールを奪取（ターンオーバー）！<br>
-・<strong>失敗</strong>：権利を1つ消費し、さらにペナルティとして相手のフェイズがリセットされて再アタック！</p>
+・相手がフィールド内で停止した後に発動可能（※ゴールライン到達時はトライ/押し戻し判定が優先されジャッカル不可）。<br>
+・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進時は1/6。<br>
+・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
+・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
 </div>
 
 <div class="tutorial-section">
@@ -879,7 +879,10 @@ if (currentAttacker === 'COM') {
 lockControls(true);
 let targetY = ballY + tempSteps;
 let targetX = selectedOption.x;
-let isPushedBackToOwnGoal = (targetY >= TOTAL_LINES - 1);
+
+// ゴールライン判定（到達・突破したか）
+let isComTry = (targetY >= TOTAL_LINES - 1);
+let isPushedBackToOwnGoal = (targetY <= 0);
 
 if (targetY < 0) targetY = 0;
 if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
@@ -893,6 +896,13 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 �
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
+// ★修正ポイント：ゴールライン到達時（トライ または 自陣押し戻され）は判定を最優先しジャッカル不可
+if (isComTry || isPushedBackToOwnGoal) {
+isJackalWindowOpen = false;
+updateDisplayImmediate();
+proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
+} else {
+// フィールド内の場合は通常通りジャッカルチャンス
 isJackalWindowOpen = true;
 document.getElementById('log').innerText = `ラック形成！ジャッカルチャンス（2秒以内）！`;
 updateDisplayImmediate();
@@ -904,6 +914,7 @@ updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 }
 }, 2000);
+}
 });
 
 } else {
@@ -919,7 +930,6 @@ isJackalWindowOpen = false;
 
 const steps = pendingPlayData.tempSteps;
 
-// 確率設定： -2は5/6, -1は4/6, 0は3/6, 前進(>0)は1/6
 let successChance = 1 / 6;
 if (steps === -2) successChance = 5 / 6;
 else if (steps === -1) successChance = 4 / 6;
@@ -930,7 +940,6 @@ const roll = Math.random();
 const isSuccess = roll < successChance;
 
 if (isSuccess) {
-// 成功時は権利を減らさない！
 playTurnoverSound();
 document.getElementById('log').innerText = `🔥 ジャッカル成功！！（権利維持）ボールをもぎ取った！`;
 pendingPlayData = null;
@@ -939,7 +948,6 @@ setTimeout(() => {
 switchTurn("ジャッカル成功によるターンオーバー！");
 }, 1500);
 } else {
-// 失敗時は権利を1つ消費してペナルティ
 if (p1JackalCount > 0) {
 p1JackalCount--;
 }
@@ -1254,7 +1262,7 @@ document.getElementById('modal-body').innerHTML = `
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（守備時限定）】</h4>
 <p>・権利は試合を通じて<strong>3回</strong>。<br>
-・相手が動いた後に発動可能。<br>
+・相手がフィールド内で停止した後に発動可能（※ゴールライン到達時はトライ/押し戻し判定が優先されジャッカル不可）。<br>
 ・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
