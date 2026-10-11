@@ -413,7 +413,7 @@ font-size: 12px;
 <div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU (P1)</span></div>
 <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/5</span></div>
 <div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div>
-<div class="status-item"><span>JACKAL</span> <span id="jackal-count" style="color:#ff7675; font-weight:bold;">2/2</span></div>
+<div class="status-item"><span>JACKAL</span> <span id="jackal-count" style="color:#ff7675; font-weight:bold;">YOU:2 COM:2</span></div>
 </div>
 
 <div class="control-col-right">
@@ -452,12 +452,12 @@ font-size: 12px;
 </div>
 
 <div class="tutorial-section">
-<h4>【ジャッカルシステム（守備時限定）】</h4>
-<p>・権利は試合を通じて<strong>2回</strong>。<br>
-・相手が動いた後、同じ「EXECUTE」ボタンが赤色の「JACKAL!」に変わるので、そこを押して発動！<br>
+<h4>【ジャッカルシステム（お互いに2回）】</h4>
+<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時は不可）<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
-・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
-・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
+・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
+・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
+・<strong>CPUも思考してジャッカルを狙ってきます！</strong></p>
 </div>
 
 <div class="tutorial-section">
@@ -539,7 +539,7 @@ osc.start(now);
 osc.stop(now + 0.2);
 }
 
-// 共通ホイッスル生成エンジン（ピッチを少し低めに調整）
+// 共通ホイッスル生成エンジン
 function generateWhistleSound(duration, isDoubleTone = false) {
 initAudio();
 const now = audioCtx.currentTime;
@@ -551,14 +551,12 @@ const mod = audioCtx.createOscillator();
 const modGain = audioCtx.createGain();
 const masterGain = audioCtx.createGain();
 
-// 音高（周波数）を低めに設定：1800Hz & 2150Hz（落ちついたホイッスル音）
 osc1.type = 'sine';
 osc1.frequency.setValueAtTime(1800, startTime);
 
 osc2.type = 'sine';
 osc2.frequency.setValueAtTime(2150, startTime);
 
-// 笛の玉によるトレモロ（振動）
 mod.type = 'sine';
 mod.frequency.setValueAtTime(30, startTime);
 modGain.gain.setValueAtTime(200, startTime);
@@ -584,21 +582,17 @@ osc2.stop(startTime + dur);
 }
 
 if (isDoubleTone) {
-// トライ時：「ピピーッ！」と長めに響く
 playSingleWhistle(now, 0.18);
 playSingleWhistle(now + 0.22, 0.65);
 } else {
-// 攻守交代時：「ピッ！」と短く澄んだ笛の音
 playSingleWhistle(now, 0.22);
 }
 }
 
-// 攻守交代時のホイッスル（「ピッ！」）
 function playTurnoverSound() {
 generateWhistleSound(0.22, false);
 }
 
-// トライ獲得時のホイッスル（「ピピーッ！」）
 function playTrySound() {
 generateWhistleSound(0.85, true);
 }
@@ -639,6 +633,7 @@ let p1Tries = 0;
 let comTries = 0;
 
 let p1JackalCount = 2;
+let comJackalCount = 2; // CPU側のジャッカル権利回数
 let pendingPlayData = null; 
 let isJackalWindowOpen = false;
 
@@ -779,7 +774,7 @@ document.getElementById('current-turn').style.color = '#00f2fe';
 
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
-document.getElementById('jackal-count').innerText = `${p1JackalCount}/2`;
+document.getElementById('jackal-count').innerText = `YOU:${p1JackalCount} COM:${comJackalCount}`;
 
 const mainBtn = document.getElementById('roll-btn');
 if (currentAttacker === 'COM' && p1JackalCount > 0 && isJackalWindowOpen) {
@@ -935,10 +930,12 @@ proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 });
 
 } else {
+// プレイヤー(P1)のアタック処理
 processPlayResult(pendingPlayData);
 }
 }
 
+// P1（プレイヤー）がCOMの攻撃に対してジャッカルを発動
 function triggerJackal() {
 if (!isJackalWindowOpen || !pendingPlayData || currentAttacker !== 'COM') return;
 
@@ -968,7 +965,6 @@ switchTurn("ジャッカル成功によるターンオーバー！");
 if (p1JackalCount > 0) {
 p1JackalCount--;
 }
-document.getElementById('jackal-count').innerText = `${p1JackalCount}/2`;
 updateDisplayImmediate();
 
 playTurnoverSound();
@@ -984,6 +980,46 @@ document.getElementById('log').innerText = `ペナルティによりCOMの攻撃
 setTimeout(() => {
 executePlay();
 }, 1500);
+}, 1500);
+}
+}
+
+// CPU（COM）がP1の攻撃に対してジャッカルを発動するAI処理
+function triggerCpuJackal() {
+const steps = pendingPlayData.tempSteps;
+
+let successChance = 1 / 6;
+if (steps === -2) successChance = 4 / 6;
+else if (steps === -1) successChance = 3 / 6;
+else if (steps === 0) successChance = 2 / 6;
+else if (steps > 0) successChance = 1 / 6;
+
+const roll = Math.random();
+const isSuccess = roll < successChance;
+
+if (isSuccess) {
+playTurnoverSound();
+document.getElementById('log').innerText = `⚠️ COMのジャッカル成功！！ボールを奪われた！`;
+pendingPlayData = null;
+
+setTimeout(() => {
+switchTurn("COMのジャッカル成功！ターンオーバー！");
+}, 1500);
+} else {
+comJackalCount--;
+updateDisplayImmediate();
+
+playTurnoverSound();
+document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！攻撃フェイズリセット！`;
+pendingPlayData = null;
+
+setTimeout(() => {
+currentPhase = 1;
+document.getElementById('phase-num').innerText = currentPhase + '/5';
+lockControls(false);
+updateDisplayImmediate();
+updateAvailableChannels();
+document.getElementById('log').innerText = `COMの反則！あなたのフェイズが1にリセットして継続！`;
 }, 1500);
 }
 }
@@ -1055,6 +1091,7 @@ let targetY = ballY - tempSteps;
 let targetX = selectedOption.x;
 
 let isPushedBackToOwnGoal = (targetY >= TOTAL_LINES - 1);
+let isP1Try = (targetY <= 0);
 
 if (targetY < 0) targetY = 0;
 if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
@@ -1077,6 +1114,23 @@ if (checkTryCondition()) return;
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
 switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタックでリスタート！");
+return;
+}
+
+// ★ CPU側のジャッカル判定（ゴール到達時はジャッカル不可）
+let cpuWantsJackal = false;
+if (comJackalCount > 0 && !isP1Try && !isTO) {
+// -2なら80%、-1なら50%、自陣ピンチ(Y<=2)なら70%の確率でCPUがジャッカルを選択
+if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
+else if (tempSteps === -1 && Math.random() < 0.5) cpuWantsJackal = true;
+else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
+}
+
+if (cpuWantsJackal) {
+document.getElementById('log').innerText = `🚨 COMがジャッカルを狙ってきた！！`;
+setTimeout(() => {
+triggerCpuJackal();
+}, 1000);
 return;
 }
 
@@ -1256,6 +1310,7 @@ function restartGame() {
 p1Tries = 0;
 comTries = 0;
 p1JackalCount = 2;
+comJackalCount = 2;
 currentAttacker = 'P1';
 pendingPlayData = null;
 isJackalWindowOpen = false;
@@ -1275,12 +1330,12 @@ document.getElementById('modal-body').innerHTML = `
 </div>
 
 <div class="tutorial-section">
-<h4>【ジャッカルシステム（守備時限定）】</h4>
-<p>・権利は試合を通じて<strong>2回</strong>。<br>
-・相手が動いた後、同じ「EXECUTE」ボタンが赤色の「JACKAL!」に変わるので、そこを押して発動！<br>
+<h4>【ジャッカルシステム（お互いに2回）】</h4>
+<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時は不可）<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
-・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
-・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
+・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
+・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
+・<strong>CPUも思考してジャッカルを狙ってきます！</strong></p>
 </div>
 
 <div class="tutorial-section">
