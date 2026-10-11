@@ -954,7 +954,7 @@ const isSuccess = roll < successChance;
 
 if (isSuccess) {
 playTurnoverSound();
-document.getElementById('log').innerText = `🔥 ジャッカル成功！！（権利維持）ボールをもぎ取った！`;
+document.getElementById('log').innerText = `🔥 ジャッカル成功！！ボールを奪い取った！`;
 pendingPlayData = null;
 
 setTimeout(() => {
@@ -1010,7 +1010,7 @@ comJackalCount--;
 updateDisplayImmediate();
 
 playTurnoverSound();
-document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！攻撃継続！`;
+document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！リセットして攻撃継続！`;
 pendingPlayData = null;
 
 setTimeout(() => {
@@ -1287,7 +1287,7 @@ const modal = document.getElementById('modal-overlay');
 const title = document.getElementById('modal-title');
 const body = document.getElementById('modal-body');
 
-title.innerText = "GAME SET!!";
+title.innerText = "NO SIDE!!";
 const isP1Win = (winner === 'P1');
 
 body.innerHTML = `
