@@ -453,7 +453,7 @@ font-size: 12px;
 
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（お互いに2回）】</h4>
-<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時は不可）<br>
+<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時は不可）<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
@@ -633,7 +633,7 @@ let p1Tries = 0;
 let comTries = 0;
 
 let p1JackalCount = 2;
-let comJackalCount = 2; // CPU側のジャッカル権利回数
+let comJackalCount = 2;
 let pendingPlayData = null; 
 let isJackalWindowOpen = false;
 
@@ -910,7 +910,8 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 �
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
-if (isComTry || isPushedBackToOwnGoal) {
+// ★ 修正ポイント：ゴール到達時 または オフロードパス時はジャッカル不可（ラック未形成のため）
+if (isComTry || isPushedBackToOwnGoal || cellData.isOffload) {
 isJackalWindowOpen = false;
 updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
@@ -930,12 +931,10 @@ proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 });
 
 } else {
-// プレイヤー(P1)のアタック処理
 processPlayResult(pendingPlayData);
 }
 }
 
-// P1（プレイヤー）がCOMの攻撃に対してジャッカルを発動
 function triggerJackal() {
 if (!isJackalWindowOpen || !pendingPlayData || currentAttacker !== 'COM') return;
 
@@ -984,7 +983,6 @@ executePlay();
 }
 }
 
-// CPU（COM）がP1の攻撃に対してジャッカルを発動するAI処理
 function triggerCpuJackal() {
 const steps = pendingPlayData.tempSteps;
 
@@ -1117,10 +1115,9 @@ switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタッ�
 return;
 }
 
-// ★ CPU側のジャッカル判定（ゴール到達時はジャッカル不可）
+// ★ 修正ポイント：オフロードパス（isOffload）の時はCPU側もジャッカル不可
 let cpuWantsJackal = false;
-if (comJackalCount > 0 && !isP1Try && !isTO) {
-// -2なら80%、-1なら50%、自陣ピンチ(Y<=2)なら70%の確率でCPUがジャッカルを選択
+if (comJackalCount > 0 && !isP1Try && !isTO && !isOffload) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
 else if (tempSteps === -1 && Math.random() < 0.5) cpuWantsJackal = true;
 else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
@@ -1331,7 +1328,7 @@ document.getElementById('modal-body').innerHTML = `
 
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（お互いに2回）】</h4>
-<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時は不可）<br>
+<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時は不可）<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
