@@ -539,7 +539,7 @@ osc.start(now);
 osc.stop(now + 0.2);
 }
 
-// 共通ホイッスル生成エンジン（金属笛の振動音）
+// 共通ホイッスル生成エンジン（ピッチを少し低めに調整）
 function generateWhistleSound(duration, isDoubleTone = false) {
 initAudio();
 const now = audioCtx.currentTime;
@@ -551,17 +551,17 @@ const mod = audioCtx.createOscillator();
 const modGain = audioCtx.createGain();
 const masterGain = audioCtx.createGain();
 
-// 和音構成（ラグビーホイッスル特有の2つの主周波数）
+// 音高（周波数）を低めに設定：1800Hz & 2150Hz（落ちついたホイッスル音）
 osc1.type = 'sine';
-osc1.frequency.setValueAtTime(2800, startTime);
+osc1.frequency.setValueAtTime(1800, startTime);
 
 osc2.type = 'sine';
-osc2.frequency.setValueAtTime(3300, startTime);
+osc2.frequency.setValueAtTime(2150, startTime);
 
-// 笛の「玉」による高速震え（約35Hzのトレモロ）
+// 笛の玉によるトレモロ（振動）
 mod.type = 'sine';
-mod.frequency.setValueAtTime(35, startTime);
-modGain.gain.setValueAtTime(300, startTime);
+mod.frequency.setValueAtTime(30, startTime);
+modGain.gain.setValueAtTime(200, startTime);
 
 mod.connect(osc1.frequency);
 mod.connect(osc2.frequency);
@@ -584,11 +584,11 @@ osc2.stop(startTime + dur);
 }
 
 if (isDoubleTone) {
-// トライ時：「ピピーッ！」と二声で長めに鳴る
+// トライ時：「ピピーッ！」と長めに響く
 playSingleWhistle(now, 0.18);
 playSingleWhistle(now + 0.22, 0.65);
 } else {
-// 攻守交代時：「ピッ！」と短くキレのある一声
+// 攻守交代時：「ピッ！」と短く澄んだ笛の音
 playSingleWhistle(now, 0.22);
 }
 }
