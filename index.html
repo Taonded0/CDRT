@@ -431,7 +431,7 @@ font-size: 12px;
 <div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU (P1)</span></div>
 <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/5</span></div>
 <div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div>
-<div class="status-item"><span>JACKAL</span> <span id="jackal-count" style="color:#ff7675; font-weight:bold;">3/3</span></div>
+<div class="status-item"><span>JACKAL</span> <span id="jackal-count" style="color:#ff7675; font-weight:bold;">2/2</span></div>
 </div>
 
 <div class="control-col-right">
@@ -472,9 +472,9 @@ font-size: 12px;
 
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（守備時限定）】</h4>
-<p>・権利は試合を通じて<strong>3回</strong>。<br>
-・相手がフィールド内で停止した後に発動可能（※ゴールライン到達時はトライ/押し戻し判定が優先されジャッカル不可）。<br>
-・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進時は1/6。<br>
+<p>・権利は試合を通じて<strong>2回</strong>。<br>
+・相手がフィールド内で停止した後に発動可能（ゴールライン到達時はジャッカル不可）。<br>
+・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
 </div>
@@ -634,7 +634,7 @@ let maxPhases = 5;
 let p1Tries = 0;
 let comTries = 0;
 
-let p1JackalCount = 3;
+let p1JackalCount = 2; // 権利回数を2回に変更
 let pendingPlayData = null; 
 let isJackalWindowOpen = false;
 
@@ -775,7 +775,7 @@ document.getElementById('current-turn').style.color = '#00f2fe';
 
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
-document.getElementById('jackal-count').innerText = `${p1JackalCount}/3`;
+document.getElementById('jackal-count').innerText = `${p1JackalCount}/2`; // 表示を2/2に更新
 
 const jackalBtn = document.getElementById('jackal-btn');
 if (currentAttacker === 'COM' && p1JackalCount > 0 && isJackalWindowOpen) {
@@ -880,7 +880,6 @@ lockControls(true);
 let targetY = ballY + tempSteps;
 let targetX = selectedOption.x;
 
-// ゴールライン判定（到達・突破したか）
 let isComTry = (targetY >= TOTAL_LINES - 1);
 let isPushedBackToOwnGoal = (targetY <= 0);
 
@@ -896,13 +895,11 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 �
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
-// ★修正ポイント：ゴールライン到達時（トライ または 自陣押し戻され）は判定を最優先しジャッカル不可
 if (isComTry || isPushedBackToOwnGoal) {
 isJackalWindowOpen = false;
 updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 } else {
-// フィールド内の場合は通常通りジャッカルチャンス
 isJackalWindowOpen = true;
 document.getElementById('log').innerText = `ラック形成！ジャッカルチャンス（2秒以内）！`;
 updateDisplayImmediate();
@@ -930,16 +927,19 @@ isJackalWindowOpen = false;
 
 const steps = pendingPlayData.tempSteps;
 
+// ご指定の分母6の確率設定
+// -2: 4/6, -1: 3/6, 0: 2/6, 前進(>0): 1/6
 let successChance = 1 / 6;
-if (steps === -2) successChance = 5 / 6;
-else if (steps === -1) successChance = 4 / 6;
-else if (steps === 0) successChance = 3 / 6;
+if (steps === -2) successChance = 4 / 6;
+else if (steps === -1) successChance = 3 / 6;
+else if (steps === 0) successChance = 2 / 6;
 else if (steps > 0) successChance = 1 / 6;
 
 const roll = Math.random();
 const isSuccess = roll < successChance;
 
 if (isSuccess) {
+// 成功時：権利は減らない！
 playTurnoverSound();
 document.getElementById('log').innerText = `🔥 ジャッカル成功！！（権利維持）ボールをもぎ取った！`;
 pendingPlayData = null;
@@ -948,10 +948,11 @@ setTimeout(() => {
 switchTurn("ジャッカル成功によるターンオーバー！");
 }, 1500);
 } else {
+// 失敗時：権利を1つ消費
 if (p1JackalCount > 0) {
 p1JackalCount--;
 }
-document.getElementById('jackal-count').innerText = `${p1JackalCount}/3`;
+document.getElementById('jackal-count').innerText = `${p1JackalCount}/2`;
 updateDisplayImmediate();
 
 playTurnoverSound();
@@ -1240,7 +1241,7 @@ modal.style.display = 'flex';
 function restartGame() {
 p1Tries = 0;
 comTries = 0;
-p1JackalCount = 3;
+p1JackalCount = 2; // リスタート時も2回にリセット
 currentAttacker = 'P1';
 pendingPlayData = null;
 isJackalWindowOpen = false;
@@ -1261,9 +1262,9 @@ document.getElementById('modal-body').innerHTML = `
 
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（守備時限定）】</h4>
-<p>・権利は試合を通じて<strong>3回</strong>。<br>
-・相手がフィールド内で停止した後に発動可能（※ゴールライン到達時はトライ/押し戻し判定が優先されジャッカル不可）。<br>
-・<strong>成功確率</strong>：-2は5/6、-1は4/6、0は3/6、前進時は1/6。<br>
+<p>・権利は試合を通じて<strong>2回</strong>。<br>
+・相手がフィールド内で停止した後に発動可能（ゴールライン到達時はジャッカル不可）。<br>
+・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
 </div>
