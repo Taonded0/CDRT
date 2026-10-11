@@ -237,7 +237,6 @@ margin-bottom: 4px;
 outline: none;
 }
 
-/* 兼用EXECUTE/JACKALボタンのスタイル */
 #controls button#roll-btn {
 background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
 color: #090a0f;
@@ -420,7 +419,6 @@ font-size: 12px;
 <div class="control-col-right">
 <label id="channel-label">ATTACK CHANNEL</label>
 <select id="channel-select"></select>
-<!-- 兼用ボタン：クリック時の動作はプログラムで切り替わります -->
 <button id="roll-btn" onclick="handleMainButton()">EXECUTE</button>
 </div>
 </div>
@@ -456,7 +454,7 @@ font-size: 12px;
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（守備時限定）】</h4>
 <p>・権利は試合を通じて<strong>2回</strong>。<br>
-・相手が動いた後、同じ「EXECUTE」ボタンが赤色の「JACKAL!」に変わるので、そこを押して発動！（ゴールライン到達時は不可）<br>
+・相手が動いた後、同じ「EXECUTE」ボタンが赤色の「JACKAL!」に変わるので、そこを押して発動！<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利は減らずにボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のフェイズがリセットされて再アタック！</p>
@@ -483,9 +481,10 @@ audioCtx.resume();
 }
 }
 
+// パス音
 function playPassSound() {
 initAudio();
-const bufferSize = audioCtx.sampleRate * 0.15;
+const bufferSize = audioCtx.sampleRate * 0.12;
 const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
 const output = buffer.getChannelData(0);
 for (let i = 0; i < bufferSize; i++) {
@@ -501,13 +500,12 @@ filter.Q.value = 3.0;
 
 const now = audioCtx.currentTime;
 filter.frequency.setValueAtTime(600, now);
-filter.frequency.exponentialRampToValueAtTime(2400, now + 0.07);
-filter.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+filter.frequency.exponentialRampToValueAtTime(2400, now + 0.06);
 
 const gainNode = audioCtx.createGain();
 gainNode.gain.setValueAtTime(0.01, now);
-gainNode.gain.linearRampToValueAtTime(0.3, now + 0.06);
-gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+gainNode.gain.linearRampToValueAtTime(0.25, now + 0.05);
+gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
 whiteNoise.connect(filter);
 filter.connect(gainNode);
@@ -516,6 +514,7 @@ gainNode.connect(audioCtx.destination);
 whiteNoise.start(now);
 }
 
+// ゲイン音
 function playGainSound(isPositive) {
 initAudio();
 const osc = audioCtx.createOscillator();
@@ -540,46 +539,68 @@ osc.start(now);
 osc.stop(now + 0.2);
 }
 
-function playTrySound() {
+// 共通ホイッスル生成エンジン（金属笛の振動音）
+function generateWhistleSound(duration, isDoubleTone = false) {
 initAudio();
 const now = audioCtx.currentTime;
-const notes = [261.63, 329.63, 392.00, 523.25];
-notes.forEach((freq, idx) => {
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
-osc.type = 'triangle';
-osc.frequency.value = freq;
 
-const startTime = now + idx * 0.08;
-const duration = (idx === notes.length - 1) ? 0.4 : 0.1;
+function playSingleWhistle(startTime, dur) {
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const mod = audioCtx.createOscillator();
+const modGain = audioCtx.createGain();
+const masterGain = audioCtx.createGain();
 
-gain.gain.setValueAtTime(0.25, startTime);
-gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+// 和音構成（ラグビーホイッスル特有の2つの主周波数）
+osc1.type = 'sine';
+osc1.frequency.setValueAtTime(2800, startTime);
 
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-osc.start(startTime);
-osc.stop(startTime + duration);
-});
+osc2.type = 'sine';
+osc2.frequency.setValueAtTime(3300, startTime);
+
+// 笛の「玉」による高速震え（約35Hzのトレモロ）
+mod.type = 'sine';
+mod.frequency.setValueAtTime(35, startTime);
+modGain.gain.setValueAtTime(300, startTime);
+
+mod.connect(osc1.frequency);
+mod.connect(osc2.frequency);
+
+masterGain.gain.setValueAtTime(0.01, startTime);
+masterGain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
+masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+
+osc1.connect(masterGain);
+osc2.connect(masterGain);
+masterGain.connect(audioCtx.destination);
+
+mod.start(startTime);
+osc1.start(startTime);
+osc2.start(startTime);
+
+mod.stop(startTime + dur);
+osc1.stop(startTime + dur);
+osc2.stop(startTime + dur);
 }
 
+if (isDoubleTone) {
+// トライ時：「ピピーッ！」と二声で長めに鳴る
+playSingleWhistle(now, 0.18);
+playSingleWhistle(now + 0.22, 0.65);
+} else {
+// 攻守交代時：「ピッ！」と短くキレのある一声
+playSingleWhistle(now, 0.22);
+}
+}
+
+// 攻守交代時のホイッスル（「ピッ！」）
 function playTurnoverSound() {
-initAudio();
-const now = audioCtx.currentTime;
-const osc = audioCtx.createOscillator();
-const gain = audioCtx.createGain();
+generateWhistleSound(0.22, false);
+}
 
-osc.type = 'sawtooth';
-osc.frequency.setValueAtTime(180, now);
-osc.frequency.setValueAtTime(110, now + 0.12);
-
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-
-osc.connect(gain);
-gain.connect(audioCtx.destination);
-osc.start(now);
-osc.stop(now + 0.3);
+// トライ獲得時のホイッスル（「ピピーッ！」）
+function playTrySound() {
+generateWhistleSound(0.85, true);
 }
 
 const WINNING_TRIES = 5;
@@ -828,7 +849,6 @@ return aggressiveOpts[Math.floor(Math.random() * aggressiveOpts.length)];
 return currentAvailableOptions[Math.floor(Math.random() * currentAvailableOptions.length)];
 }
 
-// ボタンが押されたときの共通ハンドラ（EXECUTEまたはJACKALとして機能）
 function handleMainButton() {
 if (currentAttacker === 'COM' && isJackalWindowOpen) {
 triggerJackal();
@@ -1206,7 +1226,6 @@ document.getElementById('log').innerText = `あなたのアタックで再開！
 
 function lockControls(isLock) {
 document.getElementById('channel-select').disabled = isLock;
-// 実際のボタンの有効/無効は updateDisplayImmediate で動的に管理されます
 }
 
 function showGameSetModal(winner) {
