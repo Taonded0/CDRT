@@ -910,7 +910,6 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 �
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
-// ★ 修正ポイント：ゴール到達時 または オフロードパス時はジャッカル不可（ラック未形成のため）
 if (isComTry || isPushedBackToOwnGoal || cellData.isOffload) {
 isJackalWindowOpen = false;
 updateDisplayImmediate();
@@ -935,6 +934,7 @@ processPlayResult(pendingPlayData);
 }
 }
 
+// プレイヤー側のジャッカル発動
 function triggerJackal() {
 if (!isJackalWindowOpen || !pendingPlayData || currentAttacker !== 'COM') return;
 
@@ -959,7 +959,7 @@ pendingPlayData = null;
 
 setTimeout(() => {
 switchTurn("ジャッカル成功によるターンオーバー！");
-}, 1500);
+}, 1800);
 } else {
 if (p1JackalCount > 0) {
 p1JackalCount--;
@@ -979,36 +979,38 @@ document.getElementById('log').innerText = `ペナルティによりCOMの攻撃
 setTimeout(() => {
 executePlay();
 }, 1500);
-}, 1500);
+}, 1800);
 }
 }
 
-function triggerCpuJackal() {
-const steps = pendingPlayData.tempSteps;
-
+// ★修正：CPU側のジャッカル処理（ログの表示時間をしっかり確保）
+function triggerCpuJackal(tempSteps, onCompleteNormalPlay) {
 let successChance = 1 / 6;
-if (steps === -2) successChance = 4 / 6;
-else if (steps === -1) successChance = 3 / 6;
-else if (steps === 0) successChance = 2 / 6;
-else if (steps > 0) successChance = 1 / 6;
+if (tempSteps === -2) successChance = 4 / 6;
+else if (tempSteps === -1) successChance = 3 / 6;
+else if (tempSteps === 0) successChance = 2 / 6;
+else if (tempSteps > 0) successChance = 1 / 6;
 
 const roll = Math.random();
 const isSuccess = roll < successChance;
 
+document.getElementById('log').innerText = `🚨 COMがジャッカルを狙ってきた！！`;
+
+setTimeout(() => {
 if (isSuccess) {
 playTurnoverSound();
-document.getElementById('log').innerText = `⚠️ COMのジャッカル成功！！ボールを奪われた！`;
+document.getElementById('log').innerText = `🔥 COMのジャッカル成功！！ボールを奪われた！`;
 pendingPlayData = null;
 
 setTimeout(() => {
-switchTurn("COMのジャッカル成功！ターンオーバー！");
-}, 1500);
+switchTurn("COMのジャッカル成功によるターンオーバー！");
+}, 2000);
 } else {
 comJackalCount--;
 updateDisplayImmediate();
 
 playTurnoverSound();
-document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！攻撃フェイズリセット！`;
+document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！攻撃継続！`;
 pendingPlayData = null;
 
 setTimeout(() => {
@@ -1017,9 +1019,10 @@ document.getElementById('phase-num').innerText = currentPhase + '/5';
 lockControls(false);
 updateDisplayImmediate();
 updateAvailableChannels();
-document.getElementById('log').innerText = `COMの反則！あなたのフェイズが1にリセットして継続！`;
-}, 1500);
+document.getElementById('log').innerText = `COMのノットロールアウェイ！フェイズが1にリセット！`;
+}, 2200);
 }
+}, 1200);
 }
 
 function proceedAfterPlay(playData, isPushedBackToOwnGoal) {
@@ -1115,7 +1118,7 @@ switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタッ�
 return;
 }
 
-// ★ 修正ポイント：オフロードパス（isOffload）の時はCPU側もジャッカル不可
+// ★ CPU側のジャッカル思考判定
 let cpuWantsJackal = false;
 if (comJackalCount > 0 && !isP1Try && !isTO && !isOffload) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
@@ -1124,10 +1127,8 @@ else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
 }
 
 if (cpuWantsJackal) {
-document.getElementById('log').innerText = `🚨 COMがジャッカルを狙ってきた！！`;
-setTimeout(() => {
-triggerCpuJackal();
-}, 1000);
+// CPUジャッカルへ分岐（結果ログが綺麗に表示されます）
+triggerCpuJackal(tempSteps);
 return;
 }
 
