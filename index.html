@@ -127,7 +127,6 @@ color: #ff2a6d;
 position: relative;
 width: 100%;
 flex-grow: 1;
-overflow: visible;
 }
 
 .v-line {
@@ -983,8 +982,8 @@ executePlay();
 }
 }
 
-// ★修正：CPU側のジャッカル処理（ログの表示時間をしっかり確保）
-function triggerCpuJackal(tempSteps, onCompleteNormalPlay) {
+// CPU側のジャッカル処理
+function triggerCpuJackal(tempSteps) {
 let successChance = 1 / 6;
 if (tempSteps === -2) successChance = 4 / 6;
 else if (tempSteps === -1) successChance = 3 / 6;
@@ -1118,7 +1117,6 @@ switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタッ�
 return;
 }
 
-// ★ CPU側のジャッカル思考判定
 let cpuWantsJackal = false;
 if (comJackalCount > 0 && !isP1Try && !isTO && !isOffload) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
@@ -1127,7 +1125,6 @@ else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
 }
 
 if (cpuWantsJackal) {
-// CPUジャッカルへ分岐（結果ログが綺麗に表示されます）
 triggerCpuJackal(tempSteps);
 return;
 }
