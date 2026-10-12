@@ -458,7 +458,7 @@ font-size: 12px;
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
-·<strong>CPUも思考してジャッカルを狙ってきます！</strong></p>
+・<strong>COMも思考してジャッカルを狙ってきます！</strong></p>
 </div>
 
 <div class="tutorial-section">
@@ -775,7 +775,7 @@ document.getElementById('current-turn').style.color = '#00f2fe';
 
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
-document.getElementById('jackal-count').innerHTML = `YOU:2<br>COM:2`;
+document.getElementById('jackal-count').innerHTML = `YOU:${p1JackalCount}<br>COM:${comJackalCount}`;
 
 const mainBtn = document.getElementById('roll-btn');
 if (currentAttacker === 'COM' && p1JackalCount > 0 && isJackalWindowOpen) {
@@ -990,7 +990,7 @@ let successChance = 1 / 6;
 if (tempSteps === -2) successChance = 4 / 6;
 else if (tempSteps === -1) successChance = 3 / 6;
 else if (tempSteps === 0) successChance = 2 / 6;
-else if (tempSteps > 0) successChance = 1 / 6;
+else if (steps > 0) successChance = 1 / 6;
 
 const roll = Math.random();
 const isSuccess = roll < successChance;
@@ -1120,7 +1120,10 @@ return;
 }
 
 let cpuWantsJackal = false;
-if (comJackalCount > 0 && !isP1Try && !isTO && !isOffload) {
+// 修正: 5フェイズ目ではなく、かつ中盤以降（合計2得点以上 または どちらかが2得点以上）のときのみCOMがジャッカルを検討する
+const isMidOrLateGame = (p1Tries >= 2 || comTries >= 2 || (p1Tries + comTries) >= 2);
+
+if (comJackalCount > 0 && currentPhase < maxPhases && isMidOrLateGame && !isP1Try && !isTO && !isOffload) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
 else if (tempSteps === -1 && Math.random() < 0.5) cpuWantsJackal = true;
 else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
@@ -1331,8 +1334,8 @@ document.getElementById('modal-body').innerHTML = `
 <p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時は不可）<br>
 ・<strong>成功確率（分母6）</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
-·<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
-·<strong>CPUも思考してジャッカルを狙ってきます！</strong></p>
+・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
+・<strong>COMも思考してジャッカルを狙ってきます！</strong></p>
 </div>
 
 <div class="tutorial-section">
