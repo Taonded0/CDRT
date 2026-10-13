@@ -449,7 +449,12 @@ font-size: 12px;
 <h4>【対戦ルール】</h4>
 <p>・<strong>YOU</strong>: 画面上部に向かって攻撃！<br>
 ・<strong>COM</strong>: 画面下部に向かって攻撃！<br>
-・5フェイズ経過、ターンオーバー（TO）、または自陣インゴールまで押し戻されると攻守交代！</p>
+・5フェイズ経過、ジャッカル（ボール奪取）、または自陣インゴールまで押し戻されると攻守交代！<br>
+・フィールドの縦ラインを端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）と言います。
+  ボールの位置によって、選択できるアタックの種類が変わります。ダイスの色（出目）を予測し、５フェイズ以内に
+  トライを獲ることを目指します。<br>
+・特殊な目「１！」は、１進んだ後にオフロードパスとして、自動抽選が行われます。その出目の確率は、＋4が1/6、
+  ＋3が2/6、＋2が2/6、ハンドリングエラー（攻守交替）が1/6となります。</p>
 </div>
 
 <div class="tutorial-section">
@@ -917,7 +922,7 @@ updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 } else {
 isJackalWindowOpen = true;
-document.getElementById('log').innerText = `ブレイクダウン！ジャッカルを狙う？！（2秒以内）`;
+document.getElementById('log').innerText = `ブレイクダウン！ジャッカル？！（2秒以内）`;
 updateDisplayImmediate();
 
 window.jackalTimer = setTimeout(() => {
@@ -1326,7 +1331,12 @@ document.getElementById('modal-body').innerHTML = `
 <h4>【対戦ルール】</h4>
 <p>・<strong>YOU</strong>: 画面上部に向かって攻撃！<br>
 ・<strong>COM</strong>: 画面下部に向かって攻撃！<br>
-・5フェイズ経過、ハンドリングエラー、自陣ゴールまで押し戻されると攻守交代！</p>
+・5フェイズ経過、ジャッカル（ボール奪取）、または自陣インゴールまで押し戻されると攻守交代！<br>
+・フィールドの縦ラインを端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）と言います。
+  ボールの位置によって、選択できるアタックの種類が変わります。ダイスの色（出目）を予測し、５フェイズ以内に
+  トライを獲ることを目指します。<br>
+・特殊な目「１！」は、１進んだ後にオフロードパスとして、自動抽選が行われます。その出目の確率は、＋4が1/6、
+  ＋3が2/6、＋2が2/6、ハンドリングエラー（攻守交替）が1/6となります。</p>
 </div>
 
 <div class="tutorial-section">
