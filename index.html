@@ -1124,8 +1124,8 @@ return;
 }
 
 let cpuWantsJackal = false;
-// 修正: 5フェイズ目ではなく、かつ中盤以降（合計2得点以上 または どちらかが2得点以上）のときのみCOMがジャッカルを検討する
-const isMidOrLateGame = (p1Tries >= 2 || comTries >= 2 || (p1Tries + comTries) >= 2);
+// 修正: 5フェイズ目ではなく、かつ中盤以降（合計4得点以上 または どちらかが3得点以上）のときのみCOMがジャッカルを検討する
+const isMidOrLateGame = (p1Tries >= 3 || comTries >= 3 || (p1Tries + comTries) >= 4);
 
 if (comJackalCount > 0 && currentPhase < maxPhases && isMidOrLateGame && !isP1Try && !isTO && !isOffload) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
