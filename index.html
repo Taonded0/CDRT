@@ -1284,6 +1284,7 @@ document.getElementById('log').innerText = `あなたのアタックで再開！
 
 function lockControls(isLock) {
 document.getElementById('channel-select').disabled = isLock;
+document.getElementById('roll-btn').disabled = isLock;//
 }
 
 function showGameSetModal(winner) {
