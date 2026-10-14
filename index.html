@@ -1291,8 +1291,10 @@ function showGameSetModal(winner) {
 lockControls(true);
 isJackalWindowOpen = false;
 const modal = document.getElementById('modal-overlay');
-//ゲーム終了時は上部の閉じるヘッダーを非表示にする
-document.getElementById('modal-header').style.display = 'none';
+//安全装置：modal-headerが存在する場合のみ非表示にする
+const modalHeader = document.getElementById('modal-header');
+if(modalHeader){
+  modalHeader.style.display = 'none';
 const body = document.getElementById('modal-body');
 
 title.innerText = "NO SIDE!!";
