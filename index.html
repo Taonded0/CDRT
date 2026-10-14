@@ -1291,7 +1291,8 @@ function showGameSetModal(winner) {
 lockControls(true);
 isJackalWindowOpen = false;
 const modal = document.getElementById('modal-overlay');
-const title = document.getElementById('modal-title');
+//ゲーム終了時は上部の閉じるヘッダーを非表示にする
+document.getElemntById('modal-header').style.display = 'none';
 const body = document.getElementById('modal-body');
 
 title.innerText = "NO SIDE!!";
@@ -1325,6 +1326,8 @@ resetKickOff();
 }
 
 function restoreTutorialModalText() {
+// 通常時はヘッダーを再度表示する
+ducument.getElementById('modal-header').style.display = 'flex';
 document.getElementById('modal-title').innerText = "DICE RUGBY TACTICS";
 document.getElementById('modal-body').innerHTML = `
 <div class="tutorial-section">
