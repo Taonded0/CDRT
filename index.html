@@ -1288,31 +1288,35 @@ document.getElementById('roll-btn').disabled = isLock;//
 }
 
 function showGameSetModal(winner) {
-lockControls(true);
-isJackalWindowOpen = false;
-const modal = document.getElementById('modal-overlay');
-//安全装置：modal-headerが存在する場合のみ非表示にする
-const modalHeader = document.getElementById('modal-header');
-if(modalHeader){
-  modalHeader.style.display = 'none';
-}
-const body = document.getElementById('modal-body');
+  lockControls(true);
+  isJackalWindowOpen = false;
+  const modal = document.getElementById('modal-overlay');
+  
+  // 安全装置：modal-headerが存在する場合のみ非表示にする
+  const modalHeader = document.getElementById('modal-header');
+  if(modalHeader){
+    modalHeader.style.display = 'none';
+  }
+  
+  // 🔽 ここを追加（titleの定義が抜けていました）
+  const title = document.getElementById('modal-title');
+  title.innerText = "NO SIDE!!";
+  
+  const body = document.getElementById('modal-body');
+  const isP1Win = (winner === 'P1');
 
-title.innerText = "NO SIDE!!";
-const isP1Win = (winner === 'P1');
-
-body.innerHTML = `
-<div style="text-align: center; padding: 10px;">
-<h2 style="color: ${isP1Win ? '#00f2fe' : '#ff2a6d'}; margin: 0 0 10px 0;">
-${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
-</h2>
-<p style="font-size: 11px; margin-bottom: 15px;">
-${isP1Win ? '5トライ先取！見事CPUを撃破！' : 'COMに5トライを奪われました...'}
-</p>
-<button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
-</div>
-`;
-modal.style.display = 'flex';
+  body.innerHTML = `
+  <div style="text-align: center; padding: 10px;">
+  <h2 style="color: ${isP1Win ? '#00f2fe' : '#ff2a6d'}; margin: 0 0 10px 0;">
+  ${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
+  </h2>
+  <p style="font-size: 11px; margin-bottom: 15px;">
+  ${isP1Win ? '5トライ先取！見事CPUを撃破！' : 'COMに5トライを奪われました...'}
+  </p>
+  <button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
+  </div>
+  `;
+  modal.style.display = 'flex';
 }
 
 function restartGame() {
