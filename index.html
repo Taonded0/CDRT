@@ -1298,26 +1298,39 @@ document.getElementById('log').innerText = `相手ゴール付近からのトラ
 }, 2000);
 }
 
-function resetKickOff() {
-ballX = 2;
-ballY = CENTER_LINE_INDEX;
-currentPhase = 1;
-currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
-pendingPlayData = null;
-isJackalWindowOpen = false;
 
-updateDisplayImmediate();
-updateAvailableChannels();
+function resetKickOff(nextAttacker = null) {
+    ballX = 2;
+    ballY = CENTER_LINE_INDEX;
+    currentPhase = 1;
 
-if (currentAttacker === 'COM') {
-lockControls(true);
-document.getElementById('log').innerText = `COMのアタックで再開！`;
-scheduleGameTimeout(() => { executePlay(); }, 1200);
-} else {
-lockControls(false);
-document.getElementById('log').innerText = `あなたのアタックで再開！`;
+    // 指定があればその攻撃側で開始。
+    // 指定がなければ、従来どおり攻撃側を交代する。
+    currentAttacker = nextAttacker ||
+        (currentAttacker === 'P1' ? 'COM' : 'P1');
+
+    pendingPlayData = null;
+    isJackalWindowOpen = false;
+    window.jackalTimer = null;
+
+    updateDisplayImmediate();
+    updateAvailableChannels();
+
+    if (currentAttacker === 'COM') {
+        lockControls(true);
+        document.getElementById('log').innerText =
+            'COMのアタックで再開！';
+
+        scheduleGameTimeout(() => {
+            executePlay();
+        }, 1200);
+    } else {
+        lockControls(false);
+        document.getElementById('log').innerText =
+            'あなたのアタックで再開！';
+    }
 }
-}
+
 
 function lockControls(isLock) {
 document.getElementById('channel-select').disabled = isLock;
