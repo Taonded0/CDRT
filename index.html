@@ -1369,18 +1369,28 @@ function showGameSetModal(winner) {
   modal.style.display = 'flex';
 }
 
+
 function restartGame() {
-p1Tries = 0;
-comTries = 0;
-p1JackalCount = 2;
-comJackalCount = 2;
-currentAttacker = 'P1';
-pendingPlayData = null;
-isJackalWindowOpen = false;
-document.getElementById('modal-overlay').style.display = 'none';
-restoreTutorialModalText();
-resetKickOff();
+    // 前の試合のタイマーをすべて無効化
+    clearGameTimers();
+
+    p1Tries = 0;
+    comTries = 0;
+    p1JackalCount = 2;
+    comJackalCount = 2;
+
+    currentAttacker = 'P1';
+    currentPhase = 1;
+    pendingPlayData = null;
+    isJackalWindowOpen = false;
+
+    document.getElementById('modal-overlay').style.display = 'none';
+    restoreTutorialModalText();
+
+    // 新しい試合は必ずYOUから開始
+    resetKickOff('P1');
 }
+
 
 function restoreTutorialModalText() {
 // 通常時はヘッダーを再度表示する
