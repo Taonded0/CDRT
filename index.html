@@ -1338,9 +1338,11 @@ document.getElementById('roll-btn').disabled = isLock;//
 }
 
 function showGameSetModal(winner) {
-  lockControls(true);
-  isJackalWindowOpen = false;
-  const modal = document.getElementById('modal-overlay');
+    clearGameTimers();
+    lockControls(true);
+    isJackalWindowOpen = false;
+
+    const modal = document.getElementById('modal-overlay');
   
   // 安全装置：modal-headerが存在する場合のみ非表示にする
   const modalHeader = document.getElementById('modal-header');
