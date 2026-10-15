@@ -476,6 +476,43 @@ font-size: 12px;
 <script>
 let audioCtx = null;
 
+let gameTimers = new Set();
+let gameSessionId = 0;
+
+// ゲーム内タイマーを一元管理する
+function scheduleGameTimeout(callback, delay) {
+    const sessionId = gameSessionId;
+    let timerId;
+
+    timerId = setTimeout(() => {
+        gameTimers.delete(timerId);
+
+        // 別の試合に切り替わっていたら、古い処理を実行しない
+        if (sessionId !== gameSessionId) return;
+
+        callback();
+    }, delay);
+
+    gameTimers.add(timerId);
+    return timerId;
+}
+
+// 試合中の予約処理をすべて取り消す
+function clearGameTimers() {
+    gameSessionId++;
+
+    for (const timerId of gameTimers) {
+        clearTimeout(timerId);
+    }
+
+    gameTimers.clear();
+
+    if (window.jackalTimer) {
+        clearTimeout(window.jackalTimer);
+        window.jackalTimer = null;
+    }
+}
+
 function initAudio() {
 if (!audioCtx) {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
