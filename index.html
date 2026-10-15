@@ -844,7 +844,7 @@ if (diff === 0) {
 token.style.top = linePositionsY[newY] + '%';
 ballY = newY;
 if (tempSteps !== 0) playGainSound(tempSteps > 0);
-setTimeout(onComplete, 300);
+scheduleGameTimeout(onComplete, 300);
 return;
 }
 
@@ -860,14 +860,14 @@ count++;
 
 playPassSound();
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 moveOneStep();
 }, 400);
 } else {
 token.style.top = linePositionsY[newY] + '%';
 ballY = newY;
 if (tempSteps !== 0) playGainSound(tempSteps > 0);
-setTimeout(onComplete, 400);
+scheduleGameTimeout(onComplete, 400);
 }
 }
 
@@ -961,7 +961,7 @@ isJackalWindowOpen = true;
 document.getElementById('log').innerText = `ブレイクダウン！ジャッカル？！（2秒以内）`;
 updateDisplayImmediate();
 
-window.jackalTimer = setTimeout(() => {
+window.jackalTimer = scheduleGameTimeout(() => {
 if (isJackalWindowOpen) {
 isJackalWindowOpen = false;
 updateDisplayImmediate();
@@ -999,7 +999,7 @@ playTurnoverSound();
 document.getElementById('log').innerText = `🔥 ジャッカル成功！！ボールを奪い取った！`;
 pendingPlayData = null;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 switchTurn("ジャッカル成功によるターンオーバー！");
 }, 1800);
 } else {
@@ -1012,13 +1012,13 @@ playTurnoverSound();
 document.getElementById('log').innerText = `💥 ジャッカル失敗（ペナルティ）！相手のアタックがリセット！`;
 pendingPlayData = null;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 currentPhase = 1;
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 updateDisplayImmediate();
 updateAvailableChannels();
 document.getElementById('log').innerText = `ペナルティによりCOMの攻撃フェイズがリセット！再アタック！`;
-setTimeout(() => {
+scheduleGameTimeout(() => {
 executePlay();
 }, 1500);
 }, 1800);
@@ -1038,13 +1038,13 @@ const isSuccess = roll < successChance;
 
 document.getElementById('log').innerText = `🚨 COMがジャッカルを狙ってきた！！`;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 if (isSuccess) {
 playTurnoverSound();
 document.getElementById('log').innerText = `🔥 COMのジャッカル成功！！ボールを奪われた！`;
 pendingPlayData = null;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 switchTurn("COMのジャッカル成功によるターンオーバー！");
 }, 2000);
 } else {
@@ -1055,7 +1055,7 @@ playTurnoverSound();
 document.getElementById('log').innerText = `💥 COMのジャッカル失敗（ペナルティ）！リセットして攻撃継続！`;
 pendingPlayData = null;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 currentPhase = 1;
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 lockControls(false);
@@ -1092,7 +1092,7 @@ return;
 
 if (isOffload) {
 document.getElementById('log').innerText = `オフロードパス発生！`;
-setTimeout(() => {
+scheduleGameTimeout(() => {
 const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
 const opRollIndex = Math.floor(Math.random() * 6);
 const opResult = offloadOutcomes[opRollIndex];
@@ -1111,7 +1111,7 @@ document.getElementById('log').innerText = `オフロード成功！ ＋${opGain
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 if (checkTryCondition()) return;
 nextPhase();
 }, 600);
@@ -1183,7 +1183,7 @@ return;
 
 if (isOffload) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
-setTimeout(() => {
+scheduleGameTimeout(() => {
 const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
 const opRollIndex = Math.floor(Math.random() * 6);
 const opResult = offloadOutcomes[opRollIndex];
@@ -1202,7 +1202,7 @@ document.getElementById('log').innerText = `オフロード成功！ ＋${opGain
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 if (checkTryCondition()) return;
 nextPhase();
 }, 600);
@@ -1229,7 +1229,7 @@ if (currentAttacker === 'P1') {
 lockControls(false);
 } else {
 document.getElementById('log').innerText = `COMの攻撃ターン...思考中`;
-setTimeout(() => { executePlay(); }, 1200);
+scheduleGameTimeout(() => { executePlay(); }, 1200);
 }
 }
 
@@ -1245,7 +1245,7 @@ return true;
 }
 
 document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
-setTimeout(() => { resetKickOff(); }, 2000);
+scheduleGameTimeout(() => { resetKickOff(); }, 2000);
 return true;
 }
 return false;
@@ -1257,7 +1257,7 @@ pendingPlayData = null;
 isJackalWindowOpen = false;
 document.getElementById('log').innerText = `${reasonText} 攻守交代！`;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 currentPhase = 1;
 updateDisplayImmediate();
 updateAvailableChannels();
@@ -1265,7 +1265,7 @@ updateAvailableChannels();
 if (currentAttacker === 'COM') {
 lockControls(true);
 document.getElementById('log').innerText = `COMの攻撃ターン...`;
-setTimeout(() => { executePlay(); }, 1200);
+scheduleGameTimeout(() => { executePlay(); }, 1200);
 } else {
 lockControls(false);
 document.getElementById('log').innerText = `あなたの攻撃ターン！`;
@@ -1282,7 +1282,7 @@ ballX = 2;
 
 document.getElementById('log').innerText = reasonText;
 
-setTimeout(() => {
+scheduleGameTimeout(() => {
 currentPhase = 1;
 updateDisplayImmediate();
 updateAvailableChannels();
@@ -1290,7 +1290,7 @@ updateAvailableChannels();
 if (currentAttacker === 'COM') {
 lockControls(true);
 document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
-setTimeout(() => { executePlay(); }, 1200);
+scheduleGameTimeout(() => { executePlay(); }, 1200);
 } else {
 lockControls(false);
 document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
@@ -1312,7 +1312,7 @@ updateAvailableChannels();
 if (currentAttacker === 'COM') {
 lockControls(true);
 document.getElementById('log').innerText = `COMのアタックで再開！`;
-setTimeout(() => { executePlay(); }, 1200);
+scheduleGameTimeout(() => { executePlay(); }, 1200);
 } else {
 lockControls(false);
 document.getElementById('log').innerText = `あなたのアタックで再開！`;
