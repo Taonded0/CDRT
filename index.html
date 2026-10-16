@@ -938,26 +938,27 @@ body {
     }
 }
 
+
 /* ===== スマートフォン：モーダルのスクロール修正 ===== */
 
 #modal-overlay {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     height: 100dvh;
 
     box-sizing: border-box;
     padding: 12px 8px;
 
     display: none;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    touch-action: pan-y;
+    overflow: hidden;
 
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
+
+    z-index: 100;
+    touch-action: pan-y;
 }
 
 #modal-content {
@@ -970,15 +971,23 @@ body {
     max-height: calc(100dvh - 24px);
 
     min-height: 0;
-    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+
     overflow-x: hidden;
+    overflow-y: auto;
 
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
 
+    flex-shrink: 1;
+    margin: 0;
+}
+
+#modal-header {
     flex-shrink: 0;
-    margin: auto 0;
 }
 
 #modal-body {
@@ -986,7 +995,12 @@ body {
     overflow-wrap: anywhere;
 }
 
-/* ===== モーダルのスクロール修正ここまで ===== */
+.tutorial-section {
+    overflow-wrap: anywhere;
+}
+
+/* ===== 修正ここまで ===== */
+
   
 </style></head><body><div id="game-container"><div id="game-header"><div class="header-spacer"></div><div id="game-title">DICE RUGBY TACTICS</div><button class="rule-btn" onclick="openTutorialModal()">?</button>
 
