@@ -1001,6 +1001,140 @@ body {
 
 /* ===== 修正ここまで ===== */
 
+
+/* ===== トライ・セレブレーション演出 ===== */
+
+#try-celebration {
+    --try-color: #00f2fe;
+
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0;
+}
+
+#try-celebration.show {
+    animation: celebration-fade 1.4s ease-out both;
+}
+
+#try-celebration::before {
+    content: "";
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+
+    background: radial-gradient(
+        circle,
+        #ffffff 0%,
+        var(--try-color) 15%,
+        transparent 70%
+    );
+
+    box-shadow:
+        0 0 35px 15px var(--try-color),
+        0 0 90px 35px var(--try-color);
+    opacity: 0;
+}
+
+#try-celebration.show::before {
+    animation: celebration-burst 1.15s ease-out both;
+}
+
+#try-celebration .try-title {
+    position: relative;
+    z-index: 1;
+
+    margin: 0;
+    padding: 0 8px;
+
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(36px, 12vw, 58px);
+    font-weight: 900;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: 2px;
+
+    -webkit-text-stroke: 1px var(--try-color);
+    text-shadow:
+        0 0 8px var(--try-color),
+        0 0 22px var(--try-color),
+        0 0 45px var(--try-color);
+}
+
+#try-celebration.show .try-title {
+    animation: celebration-title 1.3s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+#try-celebration .try-subtitle {
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    color: var(--try-color);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-shadow: 0 0 12px var(--try-color);
+}
+
+@keyframes celebration-fade {
+    0%   { opacity: 0; }
+    12%  { opacity: 1; }
+    65%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes celebration-burst {
+    0% {
+        transform: scale(.2);
+        opacity: 0;
+    }
+    15% {
+        opacity: .95;
+    }
+    100% {
+        transform: scale(18);
+        opacity: 0;
+    }
+}
+
+@keyframes celebration-title {
+    0% {
+        transform: scale(.25) rotate(-8deg);
+        opacity: 0;
+    }
+    55% {
+        transform: scale(1.15) rotate(2deg);
+        opacity: 1;
+    }
+    75% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.08);
+        opacity: 0;
+    }
+}
+
+/* 動きを減らす設定の端末では演出を簡略化 */
+@media (prefers-reduced-motion: reduce) {
+    #try-celebration.show,
+    #try-celebration.show::before,
+    #try-celebration.show .try-title {
+        animation-duration: .5s;
+    }
+}
+
+/* ===== セレブレーション演出ここまで ===== */
   
 </style></head><body><div id="game-container"><div id="game-header"><div class="header-spacer"></div><div id="game-title">DICE RUGBY TACTICS</div><button class="rule-btn" onclick="openTutorialModal()">?</button>
 
@@ -1034,83 +1168,89 @@ body {
 
 ・<strong>COMも思考してジャッカルを狙ってきます！</strong></p>
 
-</div><div class="tutorial-section"><h4>【勝利条件】</h4><p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p></div></div></div></div><script>
+</div><div class="tutorial-section"><h4>【勝利条件】</h4><p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p></div></div></div></div>
+  <div id="try-celebration" aria-hidden="true">
+  <div class="try-title">TRY!!</div>
+  <div class="try-subtitle">INCREDIBLE PLAY!</div>
+</div>
+  <script>
   
 let audioCtx = null;
   
 
   
+
 let gameTimers = new Set();
-  
 let gameSessionId = 0;
-  
 
-  
-// ゲーム内タイマーを一元管理する
-  
+// ゲーム用タイマーを管理する
 function scheduleGameTimeout(callback, delay) {
-  
-    const sessionId = gameSessionId;
-  
-    let timerId;
-  
+    const timer = {
+        id: null,
+        cancelled: false,
+        sessionId: gameSessionId,
+        callback: callback
+    };
 
-  
-    timerId = setTimeout(() => {
-  
-        gameTimers.delete(timerId);
-  
+    function run() {
+        timer.id = null;
 
-  
-        // 別の試合に切り替わっていたら、古い処理を実行しない
-  
-        if (sessionId !== gameSessionId) return;
-  
+        if (timer.cancelled || timer.sessionId !== gameSessionId) {
+            gameTimers.delete(timer);
+            return;
+        }
 
-  
-        callback();
-  
-    }, delay);
-  
+        // 画面が非表示なら、ゲーム処理を進めず少し待つ
+        if (document.visibilityState === 'hidden') {
+            timer.id = setTimeout(run, 250);
+            return;
+        }
 
-  
-    gameTimers.add(timerId);
-  
-    return timerId;
-  
+        gameTimers.delete(timer);
+        timer.callback();
+    }
+
+    timer.id = setTimeout(run, delay);
+    gameTimers.add(timer);
+
+    return timer;
 }
-  
 
-  
-// 試合中の予約処理をすべて取り消す
-  
+// 個別のタイマーをキャンセルする
+function cancelGameTimeout(timer) {
+    if (!timer) return;
+
+    timer.cancelled = true;
+
+    if (timer.id !== null) {
+        clearTimeout(timer.id);
+        timer.id = null;
+    }
+
+    gameTimers.delete(timer);
+}
+
+// ゲーム終了・リスタート時に全タイマーを消去する
 function clearGameTimers() {
-  
     gameSessionId++;
-  
 
-  
-    for (const timerId of gameTimers) {
-  
-        clearTimeout(timerId);
-  
+    for (const timer of gameTimers) {
+        timer.cancelled = true;
+
+        if (timer.id !== null) {
+            clearTimeout(timer.id);
+            timer.id = null;
+        }
     }
-  
 
-  
     gameTimers.clear();
-  
 
-  
     if (window.jackalTimer) {
-  
-        clearTimeout(window.jackalTimer);
-  
+        cancelGameTimeout(window.jackalTimer);
         window.jackalTimer = null;
-  
     }
-  
 }
+
   
 
   
@@ -1137,7 +1277,7 @@ audioCtx.resume();
 // パス音
   
 function playPassSound() {
-  
+if (document.visibilityState === 'hidden') return;
 initAudio();
   
 const bufferSize = audioCtx.sampleRate * 0.12;
@@ -1203,7 +1343,7 @@ whiteNoise.start(now);
 // ゲイン音
   
 function playGainSound(isPositive) {
-  
+  if (document.visibilityState === 'hidden') return;
 initAudio();
   
 const osc = audioCtx.createOscillator();
@@ -1254,6 +1394,7 @@ osc.stop(now + 0.2);
   
 function generateWhistleSound(duration, isDoubleTone = false) {
   
+if (document.visibilityState === 'hidden') return;if (document.visibilityState === 'hidden') return;
 initAudio();
   
 const now = audioCtx.currentTime;
@@ -2554,42 +2695,84 @@ scheduleGameTimeout(() => { executePlay(); }, 1200);
   
 
   
+
 function checkTryCondition() {
-  
-if ((currentAttacker === 'P1' && ballY <= 0) || (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)) {
-  
-playTrySound();
-  
-if (currentAttacker === 'P1') p1Tries++; else comTries++;
-  
-document.getElementById('score-text').innerText = `${p1Tries} - ${comTries}`;
-  
+    if (
+        (currentAttacker === 'P1' && ballY <= 0) ||
+        (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)
+    ) {
+        // 既存のトライ音を再生
+        playTrySound();
 
-  
-if (p1Tries >= WINNING_TRIES || comTries >= WINNING_TRIES) {
-  
-showGameSetModal(p1Tries >= WINNING_TRIES ? 'P1' : 'COM');
-  
-return true;
-  
-}
-  
+        // 既存の得点処理
+        if (currentAttacker === 'P1') {
+            p1Tries++;
+        } else {
+            comTries++;
+        }
 
-  
-document.getElementById('log').innerText = `🎉 TRY!! ${currentAttacker === 'P1' ? 'YOU' : 'COM'} トライ！！`;
-  
-scheduleGameTimeout(() => { resetKickOff(); }, 2000);
-  
-return true;
-  
-}
-  
-return false;
-  
-}
-  
+        document.getElementById('score-text').innerText =
+            `${p1Tries} - ${comTries}`;
 
-  
+        // 5トライ目かどうかを判定
+        const isFinal =
+            p1Tries >= WINNING_TRIES ||
+            comTries >= WINNING_TRIES;
+
+        // YOU / COM に応じた演出色とメッセージ
+        const isP1 = currentAttacker === 'P1';
+        const winner = isP1 ? 'P1' : 'COM';
+
+        const celebration = document.getElementById('try-celebration');
+        const title = celebration.querySelector('.try-title');
+        const subtitle = celebration.querySelector('.try-subtitle');
+
+        celebration.style.setProperty(
+            '--try-color',
+            isP1 ? '#00f2fe' : '#ff2a6d'
+        );
+
+        if (isFinal) {
+            title.innerText = isP1 ? 'VICTORY!!' : 'DEFEAT...';
+            subtitle.innerText = 'FULL TIME';
+            celebration.style.setProperty(
+                '--try-color',
+                isP1 ? '#ffeaa7' : '#ff2a6d'
+            );
+        } else {
+            title.innerText = 'TRY!!';
+            subtitle.innerText = isP1 ? 'YOU SCORED!' : 'COM SCORED!';
+        }
+
+        // アニメーションを毎回最初から再生
+        celebration.classList.remove('show');
+        void celebration.offsetWidth;
+        celebration.classList.add('show');
+
+        if (isFinal) {
+            // 演出後に既存の試合終了モーダルを表示
+            scheduleGameTimeout(() => {
+                showGameSetModal(winner);
+            }, 1700);
+
+            return true;
+        }
+
+        // 通常トライは従来どおり2秒後にキックオフ
+        document.getElementById('log').innerText =
+            `🎉 TRY!! ${isP1 ? 'YOU' : 'COM'} トライ！！`;
+
+        scheduleGameTimeout(() => {
+            resetKickOff();
+        }, 2000);
+
+        return true;
+    }
+
+    return false;
+}
+
+
 function switchTurn(reasonText) {
   
 currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
@@ -2967,5 +3150,25 @@ window.addEventListener('DOMContentLoaded', () => {
 setupBoard();
   
 });
-  
+ 
+/* ===== スマホ画面消灯時の停止処理 ===== */
+
+
+function stopGameOnHidden() {
+    if (document.visibilityState === 'hidden') {
+        // タイマーは消去しない。ゲームを一時停止させる
+        if (
+            typeof audioCtx !== 'undefined' &&
+            audioCtx &&
+            audioCtx.state !== 'closed'
+        ) {
+            audioCtx.suspend().catch(() => {});
+        }
+    }
+}
+
+document.addEventListener('visibilitychange', stopGameOnHidden);
+window.addEventListener('pagehide', stopGameOnHidden);
+
+ 
 </script></body></html>
