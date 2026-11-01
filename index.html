@@ -1474,6 +1474,7 @@ let opTargetY = ballY + opGain;
 if (opTargetY < 0) opTargetY = 0;
 if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
+ token.style.left = X_POS[ballX] + '%'; token.style.top = linePositionsY[ballY] + '%'; setTimeout(() => { lockControls(false); updateAvailableChannels(); updateDisplayImmediate(); document.getElementById('dice-color-box').style.backgroundColor = '#1e293b'; document.getElementById('dice-text-box').innerText = '-'; document.getElementById('dice-text-box').style.backgroundColor = 'rgba(10, 14, 23, 0.9)'; document.getElementById('dice-text-box').style.color = '#fff'; }, 600); } }, 3000); }, 2000); return; }
 playGainSound(true);
 document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
 ballY = opTargetY;
