@@ -224,8 +224,7 @@ flex-direction: column;
 justify-content: space-around;
 text-align: left;
 box-sizing: border-box;
-flex-shrink: 0;
-}
+flex-shrink: 0;}
 
 .control-col-right {
 flex: 1;
@@ -251,7 +250,7 @@ label { font-size: 10px; color: #00f2fe; font-weight: 700; letter-spacing: 0.5px
 
 select {
 font-family: inherit;
-font-size: 11px;
+font-size: 13.5px;
 font-weight: 700;
 padding: 2px 4px;
 border-radius: 4px;
@@ -364,7 +363,7 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 margin-bottom: 2px;
-font-size: 11px;
+font-size: 10.5px;
 }
 
 .channel-guide-name { color: #ffffff; width: 88px; overflow: hidden; white-space: nowrap; font-weight: 500; }
@@ -1015,11 +1014,11 @@ const PASS_TABLE = {
 'Inside': { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'},yellow: {val: 1, label: '1'}, purple: {val: 1, label: '1'}, green: {val: 1, label: '1'}, orange: {val: 1, label: '1'} },
 'Middle': { red: {val: 2, label: '2'}, blue: {val: -1, label: '-1'},yellow: {val: 0, label: '0'}, purple: {val: 0, label: '0'}, green: {val: 1, label: '1'}, orange: {val: '1＋', isOffload: true, label: '1＋'} },
 'Short': { red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 1, label: '1'},purple: {val: 4, label: '4'}, green: {val: -1, label: '-1'}, orange: {val: 0, label: '0'} },
-'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 3, label: '3'}, purple: {val: 0, label: '0'}, green: {val: 0, label: '0'}, orange: {val: -1, label:'-1 '} },
+'Outside': { red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 3, label: '3'}, purple: {val: 0, label: '0'}, green: {val: 0, label: '0'}, orange: {val: -1, label:'-1'} },
 'Edge': { red: {val: 5, label: '5'}, blue: {val: '1＋', isOffload: true, label: '1＋'}, yellow: {val: -2, label: '-2'}, purple: {val: 3, label: '3'}, green: {val: -1, label: '-1' }, orange: {val: 0, label: '0'} },
 'Inside_Left': { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 1, label: '1'}, green: {val: 1, label: '1'}, orange: {val: 1, label: '1'} },
 'Inside_Right':{ red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: -1, label: '-1'}, green: {val: 2, label: '2'}, orange: {val: 2, label: '2'} },
-'Outside_Left':{ red: {val: '1＋', isOffload: true, label: '1＋'}, blue: {val:0, label: '0'}, yellow: {val: -1, label: '-1'}, purple: {val: 3, label: '3'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} },
+'Outside_Left':{ red: {val: '1＋', isOffload: true, label: '1＋'}, blue: {val:0, label: '0'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} },
 'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 3, label: '3'}, purple: {val: 0, label: '0'}, green: {val: 0, label: '0'}, orange: {val: -1, label: '-1'} }
 };
 
@@ -1075,38 +1074,38 @@ channelSelect.innerHTML = '';
 
 if (ballX === 0) {
 currentAvailableOptions = [
-{ label: 'Inside (左HL)', x: 1, key: 'Inside' },
-{ label: 'Middle (CL)', x: 2, key: 'Middle' },
-{ label: 'Outside (右HL)', x: 3, key: 'Outside' },
-{ label: 'Edge (右EL)', x: 4, key: 'Edge' }
+{ label: 'BARREL (左HL)', x: 1, key: 'Inside' },
+{ label: 'CRUSH (CL)', x: 2, key: 'Middle' },
+{ label: 'SPREAD (右HL)', x: 3, key: 'Outside' },
+{ label: 'BURST (右EL)', x: 4, key: 'Edge' }
 ];
 } else if (ballX === 4) {
 currentAvailableOptions = [
-{ label: 'Inside (右HL)', x: 3, key: 'Inside' },
-{ label: 'Middle (CL)', x: 2, key: 'Middle' },
-{ label: 'Outside (左HL)', x: 1, key: 'Outside' },
-{ label: 'Edge (左EL)', x: 0, key: 'Edge' }
+{ label: 'BARREL (右HL)', x: 3, key: 'Inside' },
+{ label: 'CRUSH (CL)', x: 2, key: 'Middle' },
+{ label: 'SPREAD (左HL)', x: 1, key: 'Outside' },
+{ label: 'BURST (左EL)', x: 0, key: 'Edge' }
 ];
 } else if (ballX === 1) {
 currentAvailableOptions = [
-{ label: 'Short (左EL)', x: 0, key: 'Short' },
-{ label: 'Inside (CL)', x: 2, key: 'Inside' },
-{ label: 'Middle (右HL)', x: 3, key: 'Middle' },
-{ label: 'Outside (右EL)', x: 4, key: 'Outside' }
+{ label: 'SCOOT (左EL)', x: 0, key: 'Short' },
+{ label: 'BARREL (CL)', x: 2, key: 'Inside' },
+{ label: 'CRUSH (右HL)', x: 3, key: 'Middle' },
+{ label: 'SPREAD (右EL)', x: 4, key: 'Outside' }
 ];
 } else if (ballX === 3) {
 currentAvailableOptions = [
-{ label: 'Short (右EL)', x: 4, key: 'Short' },
-{ label: 'Inside (CL)', x: 2, key: 'Inside' },
-{ label: 'Middle (左HL)', x: 1, key: 'Middle' },
-{ label: 'Outside (左EL)', x: 0, key: 'Outside' }
+{ label: 'SCOOT (右EL)', x: 4, key: 'Short' },
+{ label: 'BARREL (CL)', x: 2, key: 'Inside' },
+{ label: 'CRUSH (左HL)', x: 1, key: 'Middle' },
+{ label: 'SPREAD (左EL)', x: 0, key: 'Outside' }
 ];
 } else {
 currentAvailableOptions = [
-{ label: 'Inside (左HL)', x: 1, key: 'Inside_Left' },
-{ label: 'Inside (右HL)', x: 3, key: 'Inside_Right' },
-{ label: 'Outside (左EL)', x: 0, key: 'Outside_Left' },
-{ label: 'Outside (右EL)', x: 4, key: 'Outside_Right' }
+{ label: 'BARREL (左HL)', x: 1, key: 'Inside_Left' },
+{ label: 'DRIVE (右HL)', x: 3, key: 'Inside_Right' },
+{ label: 'ADEPT (左EL)', x: 0, key: 'Outside_Left' },
+{ label: 'SPREAD (右EL)', x: 4, key: 'Outside_Right' }
 ];
 }
 
@@ -1200,6 +1199,9 @@ const startX = ballX;
 const step = (newX > startX) ? 1 : -1;
 const diff = Math.abs(newX - startX);
 
+//
+requestAnimationFrame(() => {
+
 if (diff === 0) {
 token.style.top = linePositionsY[newY] + '%';
 ballY = newY;
@@ -1232,7 +1234,10 @@ scheduleGameTimeout(onComplete, 300);
 }
 
 moveOneStep();
+
+}); //
 }
+
 
 function selectCpuOption() {
 const isCloseToGoal = (ballY >= TOTAL_LINES - 3);
