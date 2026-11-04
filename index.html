@@ -63,8 +63,8 @@ text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
   cursor: pointer;
   font-weight: bold;
   flex-shrink: 0;
-  min-width: 40px;
-  min-height: 36px;
+  min-width: 26px;
+  min-height: 26px;
   width: auto;
   height: auto;
   padding: 6px;
@@ -778,9 +778,10 @@ body {
 ・5フェイズ経過、ジャッカル（ボール奪取）、自陣インゴールまで押し戻されると攻守交代！<br>
 ・フィールド縦ラインを端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）と呼びます。
 ボールの位置で選択できるアタックが変わります！ダイスの出目を予測、５フェイズ以内にトライを獲りきれ！。<br>
-・<strong>「１＋」</strong>は、１進んだ後にオフロードパスとして、自動抽選された結果によってさらに前進できます！
-その確率は、＋4が1/6、＋3が2/6、＋2が2/6、ハンドリングエラー（攻守交替）が1/6となります。</p>
-</div><div class="tutorial-section"><h4>【ジャッカルシステム（お互いに2回）】</h4><p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時は不可）<br>・<strong>成功確率</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
+・<strong>「１＋」</strong>は、１進んだ後にオフロードパスとして、自動抽選された結果によってさらに前進（最大プラス4マス）できます！しかしハンドリングエラーのリスクも！<br>
+・<strong>「１A」</strong>（アドバンテージ）は、１進んだ後にフェイズ数がリセット（１に戻る）され、継続してアタックできます！</p>
+</div><div class="tutorial-section"><h4>【ジャッカルシステム（お互いに2回）】</h4><p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時、1A時は不可）<br>
+・<strong>成功確率</strong>：相手のアタックが後退した時は2/3、0は1/2、前進時は1/3。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br>
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
 ・<strong>COMも思考してジャッカルを狙ってきます！</strong></p>
@@ -1006,8 +1007,6 @@ const COLORS_META = [
 { name: '緑', key: 'green', hex: '#00b894' },
 { name: '青', key: 'blue', hex: '#00f2fe' },
 { name: '紫', key: 'purple', hex: '#a29bfe' }
-
-
 ];
 
 const PASS_TABLE = {
@@ -1018,7 +1017,8 @@ const PASS_TABLE = {
 'Edge': { red: {val: 5, label: '5'}, blue: {val: '1＋', isOffload: true, label: '1＋'}, yellow: {val: -2, label: '-2'}, purple: {val: 3, label: '3'}, green: {val: -1, label: '-1' }, orange: {val: 0, label: '0'} },
 'Inside_Left': { red: {val: -1, label: '-1'}, blue: {val: 0, label: '0'}, yellow: {val: 1, label: '1'}, purple: {val: 1, label: '1'}, green: {val: 1, label: '1'}, orange: {val: 1, label: '1'} },
 'Inside_Right':{ red: {val: 0, label: '0'}, blue: {val: 1, label: '1'}, yellow: {val: 0, label: '0'}, purple: {val: -1, label: '-1'}, green: {val: 2, label: '2'}, orange: {val: 2, label: '2'} },
-'Outside_Left':{ red: {val: '1＋', isOffload: true, label: '1＋'}, blue: {val:0, label: '0'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} },
+// ★ADEPT(Outside_Left)のredを「1A（アドバンテージ）」に変更
+'Outside_Left':{ red: {val: 1, isAdvantage: true, label: '1A'}, blue: {val:0, label: '0'}, yellow: {val: -1, label: '-1'}, purple: {val: 4, label: '4'}, green: {val: 2, label: '2'}, orange: {val: 0, label: '0'} },
 'Outside_Right':{ red: {val: 1, label: '1'}, blue: {val: 2, label: '2'}, yellow: {val: 3, label: '3'}, purple: {val: 0, label: '0'}, green: {val: 0, label: '0'}, orange: {val: -1, label: '-1'} }
 };
 
@@ -1199,7 +1199,6 @@ const startX = ballX;
 const step = (newX > startX) ? 1 : -1;
 const diff = Math.abs(newX - startX);
 
-//
 requestAnimationFrame(() => {
 
 if (diff === 0) {
@@ -1235,9 +1234,8 @@ scheduleGameTimeout(onComplete, 300);
 
 moveOneStep();
 
-}); //
+});
 }
-
 
 function selectCpuOption() {
 const isCloseToGoal = (ballY >= TOTAL_LINES - 3);
@@ -1277,15 +1275,19 @@ const cellData = PASS_TABLE[selectedOption.key][rolledMeta.key];
 document.getElementById('dice-color-box').style.backgroundColor = rolledMeta.hex;
 
 const textBox = document.getElementById('dice-text-box');
-textBox.innerText = cellData.isOffload ? '1＋ (OFFLOAD)' : cellData.label;
+if (cellData.isOffload) {
+    textBox.innerText = '1＋ (OFFLOAD)';
+} else if (cellData.isAdvantage) {
+    textBox.innerText = '1A (ADVANTAGE)';
+} else {
+    textBox.innerText = cellData.label;
+}
 
 let tempSteps = 0;
 const result = cellData.val;
 
 if (typeof result === 'number') {
 tempSteps = result;
-} else if (result === '1＋') {
-tempSteps = 1;
 } else {
 const cleanVal = parseInt(result);
 tempSteps = !isNaN(cleanVal) ? cleanVal : 0;
@@ -1296,7 +1298,8 @@ selectedOption,
 cellData,
 tempSteps,
 isTO: (cellData.isTO || cellData.label === 'TO'),
-isOffload: cellData.isOffload
+isOffload: cellData.isOffload,
+isAdvantage: cellData.isAdvantage
 };
 
 if (currentAttacker === 'COM') {
@@ -1318,7 +1321,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 �
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
-if (isComTry || isPushedBackToOwnGoal || cellData.isOffload) {
+if (isComTry || isPushedBackToOwnGoal || cellData.isOffload || cellData.isAdvantage) {
 isJackalWindowOpen = false;
 updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
@@ -1353,9 +1356,9 @@ const steps = pendingPlayData.tempSteps;
 let successChance = 1 / 6;
 
 if (steps === -2) successChance = 4 / 6;
-else if (steps === -1) successChance = 3 / 6;
-else if (steps === 0) successChance = 2 / 6;
-else if (steps > 0) successChance = 1 / 6;
+else if (steps === -1) successChance = 4 / 6;
+else if (steps === 0) successChance = 3 / 6;
+else if (steps > 0) successChance = 2 / 6;
 
 const roll = Math.random();
 const isSuccess = roll < successChance;
@@ -1396,9 +1399,9 @@ function triggerCpuJackal(tempSteps) {
 let successChance = 1 / 6;
 
 if (tempSteps === -2) successChance = 4 / 6;
-else if (tempSteps === -1) successChance = 3 / 6;
-else if (tempSteps === 0) successChance = 2 / 6;
-else if (tempSteps > 0) successChance = 1 / 6;
+else if (tempSteps === -1) successChance = 4 / 6;
+else if (tempSteps === 0) successChance = 3 / 6;
+else if (tempSteps > 0) successChance = 2 / 6;
 
 const roll = Math.random();
 const isSuccess = roll < successChance;
@@ -1438,7 +1441,7 @@ pendingPlayData = null;
 isJackalWindowOpen = false;
 updateDisplayImmediate();
 
-const { cellData, isTO, isOffload } = playData;
+const { cellData, isTO, isOffload, isAdvantage } = playData;
 updateAvailableChannels();
 
 if (checkTryCondition()) return;
@@ -1453,6 +1456,24 @@ if (isTO) {
 playTurnoverSound();
 switchTurn("TURNOVER! スティールされた！");
 return;
+}
+
+// ★1A（アドバンテージによるフェイズリセット）処理
+if (isAdvantage) {
+    currentPhase = 1;
+    document.getElementById('phase-num').innerText = currentPhase + '/5';
+    playGainSound(true);
+    document.getElementById('log').innerText = `アドバンテージ！フェイズが１にリセット！`;
+    
+    scheduleGameTimeout(() => {
+      if (currentAttacker === 'P1') {
+        lockControls(false);
+      } else {
+        document.getElementById('log').innerText = `COMのアドバンテージ...`;
+        scheduleGameTimeout(() => { executePlay(); }, 1200);
+      }
+    }, 800);
+    return;
 }
 
 if (isOffload) {
@@ -1495,7 +1516,7 @@ pendingPlayData = null;
 isJackalWindowOpen = false;
 updateDisplayImmediate();
 
-const { selectedOption, cellData, tempSteps, isTO, isOffload } = playData;
+const { selectedOption, cellData, tempSteps, isTO, isOffload, isAdvantage } = playData;
 
 let targetY = ballY - tempSteps;
 let targetX = selectedOption.x;
@@ -1527,11 +1548,10 @@ return;
 }
 
 let cpuWantsJackal = false;
-
-// 5フェイズ目ではなく、かつ中盤以降（合計4得点以上 または どちらかが3得点以上）のときのみCOMがジャッカルを検討する
 const isMidOrLateGame = (p1Tries >= 3 || comTries >= 3 || (p1Tries + comTries) >= 4);
 
-if (comJackalCount > 0 && currentPhase < maxPhases && isMidOrLateGame && !isP1Try && !isTO && !isOffload) {
+// 1A（アドバンテージ）時はジャッカル不可
+if (comJackalCount > 0 && currentPhase < maxPhases && isMidOrLateGame && !isP1Try && !isTO && !isOffload && !isAdvantage) {
 if (tempSteps === -2 && Math.random() < 0.8) cpuWantsJackal = true;
 else if (tempSteps === -1 && Math.random() < 0.5) cpuWantsJackal = true;
 else if (targetY <= 2 && Math.random() < 0.7) cpuWantsJackal = true;
@@ -1546,6 +1566,19 @@ if (isTO) {
 playTurnoverSound();
 switchTurn("TURNOVER! スティールされた！");
 return;
+}
+
+// ★プレイヤー側の1A（アドバンテージ）処理
+if (isAdvantage) {
+    currentPhase = 1;
+    document.getElementById('phase-num').innerText = currentPhase + '/5';
+    playGainSound(true);
+    document.getElementById('log').innerText = `アドバンテージ！フェイズが１にリセット！`;
+    
+    scheduleGameTimeout(() => {
+        lockControls(false);
+    }, 800);
+    return;
 }
 
 if (isOffload) {
@@ -1609,10 +1642,8 @@ function checkTryCondition() {
         (currentAttacker === 'COM' && ballY >= TOTAL_LINES - 1)
     ) {
 
-        // 既存のトライ音を再生
         playTrySound();
 
-        // 既存の得点処理
         if (currentAttacker === 'P1') {
             p1Tries++;
         } else {
@@ -1622,12 +1653,10 @@ function checkTryCondition() {
         document.getElementById('score-text').innerText =
             `${p1Tries} - ${comTries}`;
 
-        // 5トライ目かどうかを判定
         const isFinal =
             p1Tries >= WINNING_TRIES ||
             comTries >= WINNING_TRIES;
 
-        // YOU / COM に応じた演出色とメッセージ
         const isP1 = currentAttacker === 'P1';
         const winner = isP1 ? 'P1' : 'COM';
 
@@ -1653,20 +1682,17 @@ function checkTryCondition() {
             subtitle.innerText = isP1 ? 'YOU SCORED!' : 'COM SCORED!';
         }
 
-        // アニメーションを毎回最初から再生
         celebration.classList.remove('show');
         void celebration.offsetWidth;
         celebration.classList.add('show');
 
         if (isFinal) {
-            // 演出後に既存の試合終了モーダルを表示
             scheduleGameTimeout(() => {
                 showGameSetModal(winner);
             }, 1700);
             return true;
         }
 
-        // 通常トライは従来どおり2秒後にキックオフ
         document.getElementById('log').innerText =
             `🎉 TRY!! ${isP1 ? 'YOU' : 'COM'} トライ！！`;
 
@@ -1734,8 +1760,6 @@ function resetKickOff(nextAttacker = null) {
     ballY = CENTER_LINE_INDEX;
     currentPhase = 1;
 
-    // 指定があればその攻撃側で開始。
-    // 指定がなければ、従来どおり攻撃側を交代する。
     currentAttacker = nextAttacker ||
         (currentAttacker === 'P1' ? 'COM' : 'P1');
 
@@ -1773,7 +1797,6 @@ function showGameSetModal(winner) {
 
     const modal = document.getElementById('modal-overlay');
 
-  // 安全装置：modal-headerが存在する場合のみ非表示にする
   const modalHeader = document.getElementById('modal-header');
   if(modalHeader){
     modalHeader.style.display = 'none';
@@ -1801,7 +1824,6 @@ function showGameSetModal(winner) {
 }
 
 function restartGame() {
-    // 前の試合のタイマーをすべて無効化
     clearGameTimers();
 
     p1Tries = 0;
@@ -1818,12 +1840,10 @@ function restartGame() {
     document.getElementById('modal-overlay').style.display = 'none';
     restoreTutorialModalText();
 
-    // 新しい試合は必ずYOUから開始
     resetKickOff('P1');
 }
 
 function restoreTutorialModalText() {
-// 通常時はヘッダーを再度表示する
 document.getElementById('modal-header').style.display = 'flex';
 document.getElementById('modal-title').innerText = "DICE RUGBY TACTICS";
 
@@ -1835,13 +1855,13 @@ document.getElementById('modal-body').innerHTML = `
 ・5フェイズ経過、ジャッカル（ボール奪取）、自陣インゴールまで押し戻されると攻守交代！<br>
 ・フィールド縦ラインを端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）と呼びます。
   ボールの位置で選択できるアタックが変わります！ダイスの出目を予測、５フェイズ以内にトライを獲りきれ！。<br>
-・<strong>「１＋」</strong>は、１進んだ後にオフロードパスとして、自動抽選された結果によってさらに前進できます！
-  その確率は、＋4が1/6、＋3が2/6、＋2が2/6、ハンドリングエラー（攻守交替）が1/6となります。</p>
+・<strong>「１＋」</strong>は、１進んだ後にオフロードパスとして、自動抽選された結果によってさらに前進（最大プラス４マス）できます！しかし、ハンドリングエラーのリスクも！<br>
+・<strong>「１A」</strong>（アドバンテージ）は、１進んだ後にフェイズ数がリセット（１に戻る）され、継続してアタックできます！</p>
 </div>
 <div class="tutorial-section">
 <h4>【ジャッカルシステム（お互いに2回）】</h4>
-<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時は不可）<br>
-・<strong>成功確率</strong>：-2は4/6、-1は3/6、0は2/6、前進時は1/6。<br>
+<p>・守備側の時、相手のアタック停止後に発動可能！（※ゴールライン到達時およびオフロードパス時、1A時は不可）<br>
+・<strong>成功確率</strong>：相手のアタックが後退した時は2/3、0は1/2、前進時は1/3。<br>
 ・<strong>成功時</strong>：権利消費なしでボール奪取！<br> 
 ・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再攻撃！<br>
 ・<strong>COMも思考してジャッカルを狙ってきます！</strong></p>
@@ -1860,15 +1880,12 @@ document.getElementById('modal-overlay').style.display = 'flex';
 
 function closeTutorialModal(event) {
     if (!event || event.target.id === 'modal-overlay' || event.target.classList.contains('close-btn')) {
-        // モーダルのヘッダーが非表示になっている＝試合終了（ゲームセット）状態か判定
         const modalHeader = document.getElementById('modal-header');
         const isGameSet = modalHeader && modalHeader.style.display === 'none';
 
         if (isGameSet) {
-            // 試合終了時は外側（または閉じるボタン）を押したらリスタートを実行する
             restartGame();
         } else {
-            // 通常時（ルール説明モーダルなど）はそのまま閉じる
             document.getElementById('modal-overlay').style.display = 'none';
         }
     }
@@ -1877,8 +1894,6 @@ function closeTutorialModal(event) {
 window.addEventListener('DOMContentLoaded', () => {
 setupBoard();
 });
-
-/* ===== スマホ画面消灯時の停止処理 ===== */
 
 function suspendGameAudio() {
     if (
@@ -1891,13 +1906,10 @@ function suspendGameAudio() {
 
 function stopGameOnHidden() {
     if (document.visibilityState === 'hidden') {
-        // ゲーム用タイマーは消去せず、音声だけ停止する
         suspendGameAudio();
     }
 }
 
 document.addEventListener('visibilitychange', stopGameOnHidden);
-
-// ページが離脱するときは、表示状態にかかわらず音声を停止
 window.addEventListener('pagehide', suspendGameAudio);
 </script></body></html>
