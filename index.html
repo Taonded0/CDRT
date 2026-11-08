@@ -1727,30 +1727,31 @@ document.getElementById('log').innerText = `あなたの攻撃ターン！`;
 }
 
 function switchTurnToGoalLine(reasonText) {
-currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
-pendingPlayData = null;
-isJackalWindowOpen = false;
+  currentAttacker = (currentAttacker === 'P1') ? 'COM' : 'P1';
+  pendingPlayData = null;
+  isJackalWindowOpen = false;
 
-// 17ラインでの押し戻し再開位置（インゴール前2つ手前ライン）
-ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 3 : 2;
-ballX = 2;
+  // 17ラインにおける3つ手前ライン（COM攻撃なら14、P1攻撃なら3）
+  ballY = (currentAttacker === 'COM') ? TOTAL_LINES - 4 : 3;
+  
+  // ballX（横の位置）は変更せず、押された時のレーン(EL/HL/CL)をそのまま引き継ぐ！
 
-document.getElementById('log').innerText = reasonText;
+  document.getElementById('log').innerText = reasonText;
 
-scheduleGameTimeout(() => {
-currentPhase = 1;
-updateDisplayImmediate();
-updateAvailableChannels();
+  scheduleGameTimeout(() => {
+    currentPhase = 1;
+    updateDisplayImmediate();
+    updateAvailableChannels();
 
-if (currentAttacker === 'COM') {
-lockControls(true);
-document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
-scheduleGameTimeout(() => { executePlay(); }, 1200);
-} else {
-lockControls(false);
-document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
-}
-}, 2000);
+    if (currentAttacker === 'COM') {
+      lockControls(true);
+      document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
+      scheduleGameTimeout(() => { executePlay(); }, 1200);
+    } else {
+      lockControls(false);
+      document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
+    }
+  }, 2000);
 }
 
 function resetKickOff(nextAttacker = null) {
