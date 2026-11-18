@@ -1313,11 +1313,11 @@ if (targetY < 0) targetY = 0;
 if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 
 if (tempSteps > 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！ゲインライン突破！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！突破された！`;
 } else if (tempSteps < 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！魂のタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -1327,7 +1327,7 @@ updateDisplayImmediate();
 proceedAfterPlay(pendingPlayData, isPushedBackToOwnGoal);
 } else {
 isStealWindowOpen = true;
-document.getElementById('log').innerText = `ブレイクダウン！スティール？！（2秒以内）`;
+document.getElementById('log').innerText = `ブレイクダウン！スティール？（2秒以内）`;
 updateDisplayImmediate();
 
 window.stealTimer = scheduleGameTimeout(() => {
@@ -1365,7 +1365,7 @@ const isSuccess = roll < successChance;
 
 if (isSuccess) {
 playTurnoverSound();
-document.getElementById('log').innerText = `🔥 スティール成功！！ボールを奪い取った！`;
+document.getElementById('log').innerText = `🔥 スティール！ボールを奪い取った！`;
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
@@ -1377,7 +1377,7 @@ p1StealCount--;
 }
 updateDisplayImmediate();
 playTurnoverSound();
-document.getElementById('log').innerText = `💥 スティール失敗（ペナルティ）！相手のアタックがリセット！`;
+document.getElementById('log').innerText = `💥 スティール失敗！相手のアタックがリセット！`;
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
@@ -1385,7 +1385,7 @@ currentPhase = 1;
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 updateDisplayImmediate();
 updateAvailableChannels();
-document.getElementById('log').innerText = `ペナルティによりCOMの攻撃フェイズがリセット！再アタック！`;
+document.getElementById('log').innerText = `ペナルティによりCOMの攻撃フェイズがリセット！`;
 
 scheduleGameTimeout(() => {
 executePlay();
@@ -1406,12 +1406,12 @@ else if (tempSteps > 0) successChance = 2 / 6;
 const roll = Math.random();
 const isSuccess = roll < successChance;
 
-document.getElementById('log').innerText = `🚨 COMがスティールを狙ってきた！！`;
+document.getElementById('log').innerText = `🚨 COMがスティールを狙う！`;
 
 scheduleGameTimeout(() => {
 if (isSuccess) {
 playTurnoverSound();
-document.getElementById('log').innerText = `🔥 COMのスティール成功！！ボールを奪われた！`;
+document.getElementById('log').innerText = `🔥 COMのスティール！ボールを奪われた！`;
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
@@ -1421,7 +1421,7 @@ switchTurn("COMのスティール成功によるターンオーバー！");
 comStealCount--;
 updateDisplayImmediate();
 playTurnoverSound();
-document.getElementById('log').innerText = `💥 COMのスティール失敗（ペナルティ）！リセットして攻撃継続！`;
+document.getElementById('log').innerText = `💥 COMのスティール失敗！フェイズリセット！`;
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
@@ -1448,7 +1448,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタックでリスタート！");
+switchTurnToGoalLine("自陣トライラインに戻された！相手アタックで再開！");
 return;
 }
 
@@ -1530,7 +1530,7 @@ lockControls(true);
 if (tempSteps > 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！ゲインライン突破！`;
 } else if (tempSteps < 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいディフェンス！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいタックル！`;
 } else {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
 }
@@ -1542,7 +1542,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣ゴールに押し戻された！相手のアタックでリスタート！");
+switchTurnToGoalLine("自陣トラインラインに戻された！相手アタックで再開！");
 return;
 }
 
@@ -1579,7 +1579,7 @@ if (isAdvantage) {
 }
 
 if (isOffload) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、さらにオフロードパス！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、更にオフロードパス！`;
 
 scheduleGameTimeout(() => {
 const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
@@ -1628,7 +1628,7 @@ document.getElementById('phase-num').innerText = currentPhase + '/5';
 if (currentAttacker === 'P1') {
 lockControls(false);
 } else {
-document.getElementById('log').innerText = `COMの攻撃ターン...思考中`;
+document.getElementById('log').innerText = `COMのアタック...思考中`;
 scheduleGameTimeout(() => { executePlay(); }, 1200);
 }
 }
@@ -1717,11 +1717,11 @@ updateAvailableChannels();
 
 if (currentAttacker === 'COM') {
 lockControls(true);
-document.getElementById('log').innerText = `COMの攻撃ターン...`;
+document.getElementById('log').innerText = `COMのアタック！`;
 scheduleGameTimeout(() => { executePlay(); }, 1200);
 } else {
 lockControls(false);
-document.getElementById('log').innerText = `あなたの攻撃ターン！`;
+document.getElementById('log').innerText = `YOUのアタック！`;
 }
 }, 1800);
 }
@@ -1745,11 +1745,11 @@ function switchTurnToGoalLine(reasonText) {
 
     if (currentAttacker === 'COM') {
       lockControls(true);
-      document.getElementById('log').innerText = `COMのゴール付近アタック！ピンチ！`;
+      document.getElementById('log').innerText = `COMのアタック！ピンチ！`;
       scheduleGameTimeout(() => { executePlay(); }, 1200);
     } else {
       lockControls(false);
-      document.getElementById('log').innerText = `相手ゴール付近からのトライチャンス！`;
+      document.getElementById('log').innerText = `YOUのトライチャンス！`;
     }
   }, 2000);
 }
@@ -1780,7 +1780,7 @@ function resetKickOff(nextAttacker = null) {
     } else {
         lockControls(false);
         document.getElementById('log').innerText =
-            'あなたのアタックで再開！';
+            'YOUのアタックで再開！';
     }
 }
 
@@ -1813,7 +1813,7 @@ function showGameSetModal(winner) {
   ${isP1Win ? 'VICTORY!' : 'DEFEAT...'}
   </h2>
   <p style="font-size: 11px; margin-bottom: 15px;">
-  ${isP1Win ? '5トライ先取！見事CPUを撃破！' : 'COMに5トライを奪われました...'}
+  ${isP1Win ? '5トライ先取！見事COMを撃破！' : 'COMに5トライを奪われました...'}
   </p>
   <button class="restart-btn" onclick="restartGame()">RESTART GAME</button>
   </div>
