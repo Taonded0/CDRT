@@ -1317,7 +1317,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！ビッグタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ゲインさせない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！ナイスタックル！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -1385,7 +1385,7 @@ currentPhase = 1;
 document.getElementById('phase-num').innerText = currentPhase + '/5';
 updateDisplayImmediate();
 updateAvailableChannels();
-document.getElementById('log').innerText = `ペナルティによりCOMの攻撃フェイズがリセット！`;
+document.getElementById('log').innerText = `ペナルティによりCOMのフェイズがリセット！`;
 
 scheduleGameTimeout(() => {
 executePlay();
@@ -1415,7 +1415,7 @@ document.getElementById('log').innerText = `🔥 COMのスティール！ボー�
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
-switchTurn("COMのスティール成功！");
+switchTurn("COMのスティール成功によるターンオーバー！");
 }, 2000);
 } else {
 comStealCount--;
@@ -1430,7 +1430,7 @@ document.getElementById('phase-num').innerText = currentPhase + '/5';
 lockControls(false);
 updateDisplayImmediate();
 updateAvailableChannels();
-document.getElementById('log').innerText = `COMのノットロールアウェイ！フェイズが1にリセット！`;
+document.getElementById('log').innerText = `COMのペナルティ！フェイズリセット！`;
 }, 2200);
 }
 }, 1200);
@@ -1448,7 +1448,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣トライラインに押し戻された！");
+switchTurnToGoalLine("トライラインに押し戻された!");
 return;
 }
 
@@ -1462,7 +1462,7 @@ if (isAdvantage) {
     currentPhase = 1;
     document.getElementById('phase-num').innerText = currentPhase + '/5';
     playGainSound(true);
-    document.getElementById('log').innerText = `アドバンテージ！フェイズが１にリセット！`;
+    document.getElementById('log').innerText = `アドバンテージ！フェイズリセット！`;
     
     scheduleGameTimeout(() => {
       if (currentAttacker === 'P1') {
@@ -1532,7 +1532,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ゲインできない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -1542,7 +1542,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("自陣トラインラインに押し戻された！");
+switchTurnToGoalLine("トラインラインに押し戻された！");
 return;
 }
 
@@ -1597,7 +1597,7 @@ if (opTargetY < 0) opTargetY = 0;
 if (opTargetY >= TOTAL_LINES) opTargetY = TOTAL_LINES - 1;
 
 playGainSound(true);
-document.getElementById('log').innerText = `オフロード成功！ ＋${opGain} GAIN!!`;
+document.getElementById('log').innerText = `パスが繋がった！ ＋${opGain} GAIN!!`;
 ballY = opTargetY;
 document.getElementById('ball-token').style.top = linePositionsY[ballY] + '%';
 
@@ -1628,7 +1628,7 @@ document.getElementById('phase-num').innerText = currentPhase + '/5';
 if (currentAttacker === 'P1') {
 lockControls(false);
 } else {
-document.getElementById('log').innerText = `COMのアタック...思考中`;
+document.getElementById('log').innerText = `COMのアタック...`;
 scheduleGameTimeout(() => { executePlay(); }, 1200);
 }
 }
@@ -1861,13 +1861,13 @@ document.getElementById('modal-body').innerHTML = `
 </div>
 <div class="tutorial-section">
 <h4>【アタックチャンネル】</h4>
-<p>・<strong>BAREL（バレル）</strong>：ゲイン確率2/3、何が何でも前に出る！<br>
-・<strong>DRIVE（ドライブ）</strong>：CLのポイントからのサイドアタック、DFを押し下げる！<br> 
-・<strong>SPREAD（スプレッド）</strong>：アウトサイドへの展開、ラインブレイクを狙う！<br>
-・<strong>ADEPT（アデプト）</strong>：CLから相手のペナルティを誘発、自らも仕掛ける！<br>
-・<strong>CRUSH（クラッシュ）</strong>：フィールド中央が主戦場、オフロードパスの使い手！<br> 
-・<strong>SCOOT（スクート）</strong>：ブラインドサイドの隙を突いて、ELを駆け上がる！<br>
-・<strong>BURST（バースト）</strong>：ELのモンスター、豪快ゆえに後退のリスクも！</p>
+<p>・<strong>BAREL（バレル）</strong>：ゲイン確率2/3、力強く前進！<br>
+・<strong>DRIVE（ドライブ）</strong>：CLからパワフルなサイドアタック！<br> 
+・<strong>SPREAD（スプレッド）</strong>：外への展開でラインブレイク！<br>
+・<strong>ADEPT（アデプト）</strong>：CLからペナルティを誘発、自らも仕掛ける！<br>
+・<strong>CRUSH（クラッシュ）</strong>：中央が主戦場、オフロードパスの使い手！<br> 
+・<strong>SCOOT（スクート）</strong>：隙を突いて、ELを駆け上がる！<br>
+・<strong>BURST（バースト）</strong>：ELのモンスター、豪快ゆえにリスクも！</p>
 </div>
 <div class="tutorial-section">
 <h4>【スティールシステム（権利は2回）】</h4>
