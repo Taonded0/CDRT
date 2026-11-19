@@ -1317,7 +1317,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！ビッグタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！ナイスタックル！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
