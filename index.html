@@ -1315,9 +1315,9 @@ if (targetY >= TOTAL_LINES) targetY = TOTAL_LINES - 1;
 if (tempSteps > 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${tempSteps}前進！突破された！`;
 } else if (tempSteps < 0) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！魂のタックル！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！ビッグタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！ナイスタックル！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
