@@ -1317,7 +1317,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！ビッグタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインさせない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ゲインさせない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
@@ -1532,7 +1532,7 @@ document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${t
 } else if (tempSteps < 0) {
 document.getElementById('log').innerText = `【${selectedOption.label}】➔ ${Math.abs(tempSteps)}後退！激しいタックル！`;
 } else {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 0 ゲインできない！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ ゲインできない！`;
 }
 
 animatePassingMovement(targetX, targetY, tempSteps, () => {
