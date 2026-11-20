@@ -1362,7 +1362,7 @@ document.getElementById('log').innerText = `🔥 スティール！ボールを�
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
-switchTurn("スティール成功によるターンオーバー！");
+switchTurn("ターンオーバー！");
 }, 1800);
 } else {
 if (p1StealCount > 0) {
@@ -1370,7 +1370,7 @@ p1StealCount--;
 }
 updateDisplayImmediate();
 playTurnoverSound();
-document.getElementById('log').innerText = `💥 スティール失敗！相手のアタックがリセット！`;
+document.getElementById('log').innerText = `💥 スティール失敗！相手フェイズがリセット！`;
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
@@ -1408,7 +1408,7 @@ document.getElementById('log').innerText = `🔥 COMのスティール！ボー�
 pendingPlayData = null;
 
 scheduleGameTimeout(() => {
-switchTurn("COMのスティール成功によるターンオーバー！");
+switchTurn("ターンオーバー！");
 }, 2000);
 } else {
 comStealCount--;
