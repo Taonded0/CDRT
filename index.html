@@ -769,14 +769,10 @@ body {
 }
 
 </style></head><body><div id="game-container"><div id="game-header"><div class="header-spacer"></div><div id="game-title">DICE RUGBY TACTICS</div><button class="rule-btn" onclick="openTutorialModal()">?</button>
-</div><div id="board-wrapper"><div class="ingoal-zone ingoal-top">TRY LINE</div><div id="field-container"><div class="v-line" style="left: 10%;"></div><div class="v-line" style="left: 30%;"></div><div class="v-line" style="left: 50%;"></div><div class="v-line" style="left: 70%;"></div><div class="v-line" style="left: 90%;"></div>
- <div id="ball-token"></div></div><div class="ingoal-zone ingoal-bottom">TRY LINE</div></div><div id="controls"><div class="control-row"><div class="control-col-left"><div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU</span></div>
-  <div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/5</span></div><div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div>
-  <div class="status-item" style="align-items: flex-start;"><span>STEAL</span> <span id="jackal-count" style="color:#ff6ec7; font-weight:bold; text-align:right; line-height:1.2;">YOU:2<br>COM:2</span></div></div><div class="control-col-right"><label id="channel-label">ATTACK CHANNEL</label>
+</div><div id="board-wrapper"><div class="ingoal-zone ingoal-top">TRY LINE</div><div id="field-container"><div class="v-line" style="left: 10%;"></div><div class="v-line" style="left: 30%;"></div><div class="v-line" style="left: 50%;"></div><div class="v-line" style="left: 70%;"></div><div class="v-line" style="left: 90%;"></div><div id="ball-token"></div></div><div class="ingoal-zone ingoal-bottom">TRY LINE</div></div><div id="controls"><div class="control-row"><div class="control-col-left"><div class="status-item"><span>ATTACKER</span> <span id="current-turn" style="color:#00f2fe; font-weight:bold;">YOU</span></div><div class="status-item"><span>PHASE</span> <span id="phase-num" style="color:#ffffff; font-weight:bold;">1/5</span></div><div class="status-item"><span>SCORE</span> <span id="score-text" style="color:#00f2fe; font-weight:bold;">0 - 0</span></div><div class="status-item" style="align-items: flex-start;"><span>STEAL</span> <span id="jackal-count" style="color:#ff6ec7; font-weight:bold; text-align:right; line-height:1.2;">YOU:2<br>COM:2</span></div></div><div class="control-col-right"><label id="channel-label">ATTACK CHANNEL</label>
 <select id="channel-select"></select>
 <button id="roll-btn" onclick="handleMainButton()">EXECUTE!</button>
-</div></div><div id="channel-guide-panel"><div id="channel-guide-title">DICE MATRIX</div><div id="channel-guide-list"></div></div><div id="dice-result-container"><div id="dice-color-box"></div><div id="dice-text-box">-</div></div><div id="log">5トライ先取で勝利！</div></div></div>
- <div id="modal-overlay" onclick="closeTutorialModal(event)"><div id="modal-content" onclick="event.stopPropagation()"><div id="modal-header"><span id="modal-title">DICE RUGBY TACTICS RULES</span>
+</div></div><div id="channel-guide-panel"><div id="channel-guide-title">DICE MATRIX</div><div id="channel-guide-list"></div></div><div id="dice-result-container"><div id="dice-color-box"></div><div id="dice-text-box">-</div></div><div id="log">5トライ先取で勝利！</div></div></div><div id="modal-overlay" onclick="closeTutorialModal(event)"><div id="modal-content" onclick="event.stopPropagation()"><div id="modal-header"><span id="modal-title">DICE RUGBY TACTICS RULES</span>
 <button class="close-btn" onclick="closeTutorialModal()">✕ CLOSE</button>
 </div><div id="modal-body"></div></div></div>
 
@@ -932,14 +928,12 @@ osc.start(now);
 osc.stop(now + 0.2);
 }
 
-// 共通ホイッスル生成エンジン
-function generateWhistleSound(duration, isDoubleTone = false) {
+// 共通ホイッスル生成エンジン（単発「ピー！」仕様）
+function generateWhistleSound(duration) {
 if (document.visibilityState === 'hidden') return;
 initAudio();
 
 const now = audioCtx.currentTime;
-
-function playSingleWhistle(startTime, dur) {
 const osc1 = audioCtx.createOscillator();
 const osc2 = audioCtx.createOscillator();
 const mod = audioCtx.createOscillator();
@@ -947,48 +941,40 @@ const modGain = audioCtx.createGain();
 const masterGain = audioCtx.createGain();
 
 osc1.type = 'sine';
-osc1.frequency.setValueAtTime(1800, startTime);
+osc1.frequency.setValueAtTime(1800, now);
 osc2.type = 'sine';
-osc2.frequency.setValueAtTime(2150, startTime);
+osc2.frequency.setValueAtTime(2150, now);
 
 mod.type = 'sine';
-mod.frequency.setValueAtTime(30, startTime);
-modGain.gain.setValueAtTime(200, startTime);
+mod.frequency.setValueAtTime(30, now);
+modGain.gain.setValueAtTime(200, now);
 
 mod.connect(osc1.frequency);
 mod.connect(osc2.frequency);
 
-masterGain.gain.setValueAtTime(0.01, startTime);
-masterGain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
-masterGain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+masterGain.gain.setValueAtTime(0.01, now);
+masterGain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+masterGain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
 osc1.connect(masterGain);
 osc2.connect(masterGain);
 masterGain.connect(audioCtx.destination);
 
-mod.start(startTime);
-osc1.start(startTime);
-osc2.start(startTime);
+mod.start(now);
+osc1.start(now);
+osc2.start(now);
 
-mod.stop(startTime + dur);
-osc1.stop(startTime + dur);
-osc2.stop(startTime + dur);
-}
-
-if (isDoubleTone) {
-playSingleWhistle(now, 0.18);
-playSingleWhistle(now + 0.22, 0.65);
-} else {
-playSingleWhistle(now, 0.22);
-}
+mod.stop(now + duration);
+osc1.stop(now + duration);
+osc2.stop(now + duration);
 }
 
 function playTurnoverSound() {
-generateWhistleSound(0.22, false);
+generateWhistleSound(0.22);
 }
 
 function playTrySound() {
-generateWhistleSound(0.85, true);
+generateWhistleSound(0.9);
 }
 
 const WINNING_TRIES = 5;
@@ -1535,7 +1521,7 @@ if (checkTryCondition()) return;
 
 if (isPushedBackToOwnGoal) {
 playTurnoverSound();
-switchTurnToGoalLine("トラインラインに押し戻された！");
+switchTurnToGoalLine("トライラインに押し戻された！");
 return;
 }
 
@@ -1572,7 +1558,7 @@ if (isAdvantage) {
 }
 
 if (isOffload) {
-document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、更にオフロードパス！`;
+document.getElementById('log').innerText = `【${selectedOption.label}】➔ 1前進、更にオフロード！`;
 
 scheduleGameTimeout(() => {
 const offloadOutcomes = ['ERROR', 2, 2, 3, 3, 4];
@@ -1842,38 +1828,36 @@ document.getElementById('modal-title').innerText = "DICE RUGBY TACTICS";
 document.getElementById('modal-body').innerHTML = `
 <div class="tutorial-section">
 <h4>【対戦ルール】</h4>
-<p>・<strong>プレイヤーYOU</strong>は画面上部のトラインラインに向かって攻撃！<br>
+<p>・<strong>プレイヤーYOU</strong>: は画面上部のトライラインに向かって攻撃！<br>
 ・5フェイズ終了、スティール、ノックフォワード、自陣トライラインに後退（3ライン前で再開）で攻守交代！<br>
-・盤面の縦ラインは端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）です。<br>
-  ボールの位置により選べるアタックチャンネルが変化します。アタックチャンネルを選択、EXCUTEボタンをタップすると、
-  カラーダイスの結果によりアタックチャンネルに定められた数だけボールが移動します。<br>
-・５フェイズ以内に相手トライラインに到達するとトライ（得点）です。<br>
-・画面右下のダイスマトリクス内の数は移動する数を表しています。<br>
+・フィールド盤の縦ラインを端からエッジレーン（EL）、ハーフレーン（HL）、セントラルレーン（CL）と呼びます。<br>
+  ボールの位置により選べるアタックチャンネルが変化します。アタックチャンネルを選択し、EXECUTEボタンをタップすると、
+  カラーダイスの結果によりアタックチャンネルに割り当てられたゲイン数の分だけボールが移動します。<br>
+・カラーダイスの出目を予測し、5フェイズ以内に相手トライラインに到達するとトライ（得点）です。<br>
+・ダイスマトリクスの数字はゲイン数を表しています。<br>
 ・<strong>「１＋」</strong>は、１つ前進後にオフロードパス！自動判定により更に前進（最大＋４）！ノックフォワードのリスクも！<br>
 ・<strong>「１A」</strong>（アドバンテージ）は、１つ前進後にフェイズ数が１にリセットされ、アタック継続！</p>
 </div>
 <div class="tutorial-section">
 <h4>【アタックチャンネル】</h4>
-<p>・<strong>BAREL</strong>：前進確率2/3、力強くゲイン！<br>
-・<strong>DRIVE</strong>：CLからサイドアタック！<br> 
-・<strong>SPREAD</strong>：外へ展開でラインブレイク！<br>
-・<strong>ADEPT</strong>：CLからペナルティを誘発させる！<br>
-・<strong>CRUSH</strong>：中央が主戦場、オフロードパスの名手！<br> 
-・<strong>NINJA</strong>：防御の隙を突いて、ELを駆け上がる！<br>
-・<strong>PHENOM</strong>：ELの怪物、豪快さとリスクも！</p>
+<p>・<strong>BARREL（バレル）</strong>：ゲイン確率2/3、力強く前進！<br>
+・<strong>DRIVE（ドライブ）</strong>：CLからパワフルなサイドアタック！<br> 
+・<strong>SPREAD（スプレッド）</strong>：外への展開でラインブレイク！<br>
+・<strong>ADEPT（アデプト）</strong>：CLからペナルティを誘発、自らも仕掛ける！<br>
+・<strong>CRUSH（クラッシュ）</strong>：中央が主戦場、オフロードパスの使い手！<br> 
+・<strong>NINJA（ニンジャ）</strong>：隙を突いて、ELを駆け上がる！<br>
+・<strong>PHENOM（フィノム）</strong>：ELのモンスター、豪快ゆえにリスクも！</p>
 </div>
 <div class="tutorial-section">
 <h4>【スティールシステム（権利は2回）】</h4>
-<p>・相手アタックフェイズ後２秒以内にSTEALボタンをタップで発動！（トライライン到達時、１＋時、１Ａ時は不可）<br>
+<p>・相手のアタックフェイズ後、2秒以内にSTEALボタンをタップすると発動！（※トライライン到達時、１＋時、1A時は不可）<br>
 ・<strong>成功確率</strong>：相手アタックの後退時は2/3、0の時は1/2、前進時は1/3。<br>
-・<strong>成功時</strong>：権利消費せず攻守交替。<br> 
-・<strong>失敗時</strong>：権利消費し、相手アタックフェイズがリセット。<br>
+・<strong>成功時</strong>：権利消費なしでボール奪取、攻守交替。<br> 
+・<strong>失敗時</strong>：権利を1つ消費し、相手のアタックフェイズがリセットされて再開。<br>
 ・<strong>COMも思考してスティールを狙ってきます！</strong></p>
 </div>
 <div class="tutorial-section">
-<h4>【勝利条件】</h4>
-<p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p>
-</div>
+<h4>【勝利条件】</h4><p>先に<strong>5トライ</strong>を取ったプレイヤーの勝利！</p></div>
 `;
 }
 
